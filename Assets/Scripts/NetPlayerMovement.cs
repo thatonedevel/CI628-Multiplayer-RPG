@@ -8,7 +8,7 @@ public class NetPlayerMovement : NetworkBehaviour
     private InputAction moveAction;
     private InputAction jumpAction;
     private InputAction interactAction;
-    
+
     private bool isJumping = false;
 
     // movement speed
@@ -37,13 +37,32 @@ public class NetPlayerMovement : NetworkBehaviour
         // read values from move / jump input actions
 
         Vector2 moveInput = moveAction.ReadValue<Vector2>();
-        
+        isJumping = jumpAction.triggered;
+
         MovePlayerCharacterRPC(moveInput, isJumping);
     }
 
     [Rpc(SendTo.Server)]
     public void MovePlayerCharacterRPC(Vector2 movement, bool jumped)
     {
+        // calculate new player position (not accounting y axis)
+        Vector3 newPosition = transform.position + new Vector3(movement.x, 0, movement.y) * moveSpeed * Time.deltaTime;
+        
+        // update rb position
+        playerRigidbody.MovePosition(newPosition);
 
+        // if we can jump and jump was pressed, add an impulse force
+        if (jumped && CanCharacterJump())
+        {
+            playerRigidbody.AddForce(Vector3.up * 5f, ForceMode.Impulse);
+        }
+    }
+
+    private bool CanCharacterJump()
+    {
+        // send raycast down - if it hits we can jump
+        Physics.Raycast(transform.position, Vector3.down, out RaycastHit hitInfo, 1.1f);
+
+        return hitInfo.collider is not null;
     }
 }
