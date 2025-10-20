@@ -9,6 +9,7 @@ public class NetPlayerMovement : NetworkBehaviour
     private InputAction jumpAction;
     private InputAction interactAction;
 
+
     private bool isJumping = false;
 
     // movement speed
@@ -16,9 +17,10 @@ public class NetPlayerMovement : NetworkBehaviour
 
     [Header("Component References")]
     private Rigidbody playerRigidbody;
+    private Camera playerCamera;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    void OnNetworkSpawn()
     {
         // find the action mappings
         moveAction = InputSystem.actions.FindAction("Move");
@@ -29,6 +31,8 @@ public class NetPlayerMovement : NetworkBehaviour
         {
             playerRigidbody = GetComponent<Rigidbody>();
         }
+
+        // add a listener for 
     }
 
     // Update is called once per frame
@@ -64,5 +68,11 @@ public class NetPlayerMovement : NetworkBehaviour
         Physics.Raycast(transform.position, Vector3.down, out RaycastHit hitInfo, 1.1f);
 
         return hitInfo.collider is not null;
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    public void ToggleOverworldCameraRPC()
+    {
+        playerCamera.enabled = !playerCamera.enabled;
     }
 }
