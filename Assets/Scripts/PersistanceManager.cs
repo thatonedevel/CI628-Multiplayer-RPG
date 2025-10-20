@@ -10,18 +10,21 @@ public class NewMonoBehaviourScript : NetworkBehaviour
     [SerializeField] private List<GameObject> persistentObjects = new List<GameObject>();
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void Start()
     {
+        netManager.OnClientStarted += OnClientStart;
+    }
+
+    void OnClientStart()
+    {
+        // called when host or client starts
+        Debug.Log("Running");
         for (int i = 0; i < persistentObjects.Count; i++)
         {
             DontDestroyOnLoad(persistentObjects[i]);
         }
-
-        // check that the net manager is started
-        if (netManager.didStart)
-        {
-            // we're good to move to the test scene
-            netManager.SceneManager.LoadScene("TestScene", UnityEngine.SceneManagement.LoadSceneMode.Single);
-        }
+        
+        // we're good to move to the test scene
+        netManager.SceneManager.LoadScene("TestDungeon", UnityEngine.SceneManagement.LoadSceneMode.Single);
     }
 }
