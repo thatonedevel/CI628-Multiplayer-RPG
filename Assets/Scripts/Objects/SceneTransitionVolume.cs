@@ -10,17 +10,6 @@ public class SceneTransitionVolume : NetworkBehaviour
     [SerializeField] private string targetScene = "";
     [SerializeField] private List<Vector3> targetPositions = new List<Vector3>();
 
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     private void OnTriggerEnter(Collider other)
     {
         // check we're server / host
