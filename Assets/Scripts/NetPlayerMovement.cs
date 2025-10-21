@@ -20,7 +20,7 @@ public class NetPlayerMovement : NetworkBehaviour
     private Camera playerCamera;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void OnNetworkSpawn()
+    void Start()
     {
         // find the action mappings
         moveAction = InputSystem.actions.FindAction("Move");
