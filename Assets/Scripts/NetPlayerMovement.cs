@@ -16,8 +16,8 @@ public class NetPlayerMovement : NetworkBehaviour
     [SerializeField] private float moveSpeed = 5f;
 
     [Header("Component References")]
-    private Rigidbody playerRigidbody;
-    private Camera playerCamera;
+    [SerializeField] private Rigidbody playerRigidbody;
+    [SerializeField] private Camera playerCamera;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -32,18 +32,23 @@ public class NetPlayerMovement : NetworkBehaviour
             playerRigidbody = GetComponent<Rigidbody>();
         }
 
-        // add a listener for 
+        // check if we're the machine that owns this player
+        playerCamera.enabled = IsOwner;
     }
 
     // Update is called once per frame
     void Update()
     {
-        // read values from move / jump input actions
+        // check if this machine owns this player character
+        if (IsOwner)
+        {
+            // read values from move / jump input actions
 
-        Vector2 moveInput = moveAction.ReadValue<Vector2>();
-        isJumping = jumpAction.triggered;
+            Vector2 moveInput = moveAction.ReadValue<Vector2>();
+            isJumping = jumpAction.triggered;
 
-        MovePlayerCharacterRPC(moveInput, isJumping);
+            MovePlayerCharacterRPC(moveInput, isJumping);
+        }
     }
 
     [Rpc(SendTo.Server)]

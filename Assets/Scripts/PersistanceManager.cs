@@ -25,6 +25,6 @@ public class NewMonoBehaviourScript : NetworkBehaviour
         }
         
         // we're good to move to the test scene
-        netManager.SceneManager.LoadScene("TestDungeon", UnityEngine.SceneManagement.LoadSceneMode.Single);
+        netManager.SceneManager.LoadScene("TestDungeon_Room0", UnityEngine.SceneManagement.LoadSceneMode.Single);
     }
 }
