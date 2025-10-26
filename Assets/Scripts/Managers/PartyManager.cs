@@ -30,8 +30,21 @@ public class PartyManager : NetworkBehaviour
         
     }
 
-    private void OnClientConnected()
+    [Rpc(SendTo.Server)]
+    public void AddPartyMemberRPC(ulong id) // use a ulong as we need to use a serializable type
     {
-        // add the new player object to the party
+        // since we have the network object, use the id to find the server side verion
+        List<GameObject> serverPlayers = new List<GameObject>();
+        GameObject.FindGameObjectsWithTag("Player", serverPlayers);
+
+        // linear search for the matching id
+        for (int i = 0; i < serverPlayers.Count; i++)
+        {
+            if (serverPlayers[i].GetComponent<NetworkObject>().NetworkObjectId == id)
+            {
+                playerGameObjects.Add(serverPlayers[i]);
+                break;
+            }
+        }
     }
 }
