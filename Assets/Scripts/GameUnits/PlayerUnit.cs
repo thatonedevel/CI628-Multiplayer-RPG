@@ -5,8 +5,9 @@ using Unity.Netcode;
 public class PlayerUnit : ABaseUnit
 {
     // player events
-    public event Action PlayerDamageEvent;
-    public event Action PlayerDeathEvent;
+    public static event Action<ulong> PlayerDamageEvent;
+    public static event Action<ulong> PlayerDeathEvent;
+    public static event Action<PlayerState, ulong> PlayerStateChangedEvent;
 
     private PlayerState currentPlayerState = PlayerState.IDLE;
 
@@ -22,13 +23,13 @@ public class PlayerUnit : ABaseUnit
         // reduce damage by amount minus def
         currentHP -= (damageAmount - defense);
 
-        PlayerDamageEvent?.Invoke();
+        PlayerDamageEvent?.Invoke(GetComponent<NetworkBehaviour>().NetworkObjectId);
 
         // check if hp <= 0
         if (currentHP <= 0)
         {
             currentHP = 0;
-            PlayerDeathEvent?.Invoke();
+            PlayerDeathEvent?.Invoke(GetComponent<NetworkBehaviour>().NetworkObjectId);
         }
     }
 
@@ -49,6 +50,29 @@ public class PlayerUnit : ABaseUnit
 
     // used for updating player state
 
+    [Rpc(SendTo.Server)]
+    public void UpdatePlayerStateRPC(PlayerState newState)
+    {
+        switch (newState)
+        {
+            case PlayerState.MOVING:
+                break;
+            case PlayerState.BATTLE:
+                break;
+            case PlayerState.SPECTATOR:
+                break;
+            case PlayerState.VIEWING_INVENTORY:
+                break;
+            case PlayerState.IDLE:
+                break;
+            default:
+                break;
+        }
+
+        currentPlayerState = newState;
+        // raise player state changed event
+        PlayerStateChangedEvent?.Invoke(newState, GetComponent<NetworkObject>().NetworkObjectId);
+    }
 }
 
 

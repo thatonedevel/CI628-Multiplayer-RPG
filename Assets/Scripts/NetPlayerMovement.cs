@@ -8,7 +8,7 @@ public class NetPlayerMovement : NetworkBehaviour
     private InputAction moveAction;
     private InputAction jumpAction;
     private InputAction interactAction;
-
+    private NetworkVariable<bool> canMove = new NetworkVariable<bool>(true);
 
     private bool isJumping = false;
 
@@ -47,7 +47,8 @@ public class NetPlayerMovement : NetworkBehaviour
             Vector2 moveInput = moveAction.ReadValue<Vector2>();
             isJumping = jumpAction.triggered;
 
-            MovePlayerCharacterRPC(moveInput, isJumping);
+            if (canMove.Value)
+                MovePlayerCharacterRPC(moveInput, isJumping);
         }
     }
 
@@ -79,5 +80,31 @@ public class NetPlayerMovement : NetworkBehaviour
     public void ToggleOverworldCameraRPC()
     {
         playerCamera.enabled = !playerCamera.enabled;
+    }
+
+    public void OnCharStateTransition(PlayerState newState, ulong playerId)
+    {
+        // only run this method client side
+        if (!IsClient)
+            return;
+
+        // check if the changed state is for this char & check we also own this character
+
+        if (playerId == GetComponent<NetworkBehaviour>().NetworkObjectId && IsOwner)
+        {
+            // depending on new state, enable / disable movement
+            switch (newState)
+            {
+                case PlayerState.MOVING:
+                    canMove.Value = true;
+                    break;
+                case PlayerState.SPECTATOR:
+                    canMove.Value = true;
+                    break;
+                default:
+                    canMove.Value = false;
+                    break;
+            }
+        }
     }
 }
