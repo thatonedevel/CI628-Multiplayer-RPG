@@ -47,4 +47,18 @@ public class PartyManager : NetworkBehaviour
             }
         }
     }
+
+    public int GetAlivePartyMemberCount()
+    {
+        int count = 0;
+        for (int i = 0; i < playerGameObjects.Count; i++)
+        {
+            int hp = playerGameObjects[i].GetComponent<ABaseUnit>().currentHP;
+
+            if (hp > 0)
+                count++;
+        }
+
+        return count;
+    }
 }
