@@ -1,9 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
+using Unity.VisualScripting;
 
 public class BattleManager : NetworkBehaviour
 {
+    // have an available singleton on the server
+    public static BattleManager Singleton;
+
     private List<ABaseUnit> battleUnits = new List<ABaseUnit>();
 
     [Header("Positioning")]
@@ -16,7 +20,17 @@ public class BattleManager : NetworkBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        if (Singleton != null)
+        {
+            GetComponent<NetworkObject>().Despawn();
+        }
+        else
+        {
+            if (IsServer || IsHost)
+            {
+                Singleton = this;
+            }
+        }
     }
 
     [Rpc(SendTo.Server)]

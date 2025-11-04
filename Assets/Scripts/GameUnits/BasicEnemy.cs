@@ -10,6 +10,8 @@ public class BasicEnemy : ABaseUnit
     public static event Action<ulong> EnemyDamagedEvent;
     public static event Action<ulong> EnemyKilledEvent;
 
+    public string enemyBaseName = string.Empty;
+
     // enemy only stats
     public int experienceDrop = 0;
     public int goldDrop = 0;
