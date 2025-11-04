@@ -10,6 +10,9 @@ public class PlayerUnit : ABaseUnit
     public static event Action<PlayerState, ulong> PlayerStateChangedEvent;
 
     private PlayerState currentPlayerState = PlayerState.IDLE;
+    [SerializeField] private string playerName = "Player";
+
+    private bool isBotPlayer = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -20,17 +23,29 @@ public class PlayerUnit : ABaseUnit
     // Update is called once per frame
     public override void TakeDamage(int damageAmount)
     {
+        // check we are the server
+        if (!(IsServer || IsHost))
+            return;
         // reduce damage by amount minus def
-        currentHP -= (damageAmount - defense);
+        currentHP.Value -= (damageAmount - defense.Value);
 
         PlayerDamageEvent?.Invoke(GetComponent<NetworkBehaviour>().NetworkObjectId);
 
         // check if hp <= 0
-        if (currentHP <= 0)
+        if (currentHP.Value <= 0)
         {
-            currentHP = 0;
+            currentHP.Value = 0;
             PlayerDeathEvent?.Invoke(GetComponent<NetworkBehaviour>().NetworkObjectId);
         }
+    }
+
+    // client side RPC for when player is damaged
+    [Rpc(SendTo.ClientsAndHost)]
+    public void DamageTakenRPC(ulong damageSource)
+    {
+        // play damage animaton/sound here
+        // also update UI
+        Debug.Log("Attacked by enemy with ID");
     }
 
     public void OnNetworkInstantiate()

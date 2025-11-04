@@ -32,11 +32,16 @@ public class BasicEnemy : ABaseUnit
 
     public virtual void AttackPlayer()
     {
-        if (IsServer)
+        if (IsServer || IsHost)
         {
             // enemy attack logic
             // pick a player to attack
             int index = UnityEngine.Random.Range(0, PartyManager.Singleton.GetAlivePartyMemberCount());
+
+            int trueTarget = PartyManager.Singleton.GetAlivePlayerIndices()[index];
+
+            // damage the player
+            PartyManager.Singleton.GetPartyMember(trueTarget).TakeDamage(attack.Value);
         }
     }
 }

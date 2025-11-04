@@ -53,12 +53,35 @@ public class PartyManager : NetworkBehaviour
         int count = 0;
         for (int i = 0; i < playerGameObjects.Count; i++)
         {
-            int hp = playerGameObjects[i].GetComponent<ABaseUnit>().currentHP;
+            int hp = playerGameObjects[i].GetComponent<ABaseUnit>().currentHP.Value;
 
             if (hp > 0)
                 count++;
         }
 
         return count;
+    }
+
+    public PlayerUnit GetPartyMember(int index)
+    {
+        if (index < 0 || index >= playerGameObjects.Count)
+            return null;
+
+        return playerGameObjects[index].GetComponent<PlayerUnit>();
+    }
+
+    public List<int> GetAlivePlayerIndices()
+    {
+        List<int> aliveIndices = new List<int>();
+
+        for (int i = 0; i < playerGameObjects.Count; i++)
+        {
+            var unit = playerGameObjects[i].GetComponent<ABaseUnit>();
+
+            if (unit.currentHP.Value > 0)
+                aliveIndices.Add(i);
+        }
+
+        return aliveIndices;
     }
 }
