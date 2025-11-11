@@ -77,6 +77,27 @@ public class BattleManager : NetworkBehaviour
             
         }
     }
+
+    public ulong[] GetAllEnemyUnits()
+    {
+        // server only
+        if (!IsServer && !IsHost) 
+            throw new NotServerException("Hey dummy you need to be a server to call this");
+
+        List<ulong> enemyUnitList = new List<ulong>();
+
+        for (int i = 0; i < battleUnits.Count; i++)
+        {
+            if (battleUnits[i] is BasicEnemy)
+            {
+                // get network id, add to list
+                ulong id = battleUnits[i].GetComponent<NetworkObject>().NetworkObjectId;
+                enemyUnitList.Add(id);
+            }
+        }
+
+        return enemyUnitList.ToArray();
+    }
 }
 
 public enum BattleState

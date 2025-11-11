@@ -229,8 +229,9 @@ GameObject:
   m_Component:
   - component: {fileID: 6908532442525094724}
   - component: {fileID: 4162376239408763805}
+  - component: {fileID: -5171567819697531030}
   m_Layer: 0
-  m_Name: EnemyPF
+  m_Name: ZombiePF
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -264,7 +265,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 0
+  GlobalObjectIdHash: 365530307
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -277,3 +278,27 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
+--- !u!114 &-5171567819697531030
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5427688019912199295}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6372fe131a99d3a4eaccf6392e2d5f72, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  maxHP:
+    m_InternalValue: 5
+  currentHP:
+    m_InternalValue: 5
+  defense:
+    m_InternalValue: 0
+  attack:
+    m_InternalValue: 1
+  enemyBaseName: Zombie
+  experienceDrop: 4
+  goldDrop: 1
