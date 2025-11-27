@@ -79,7 +79,10 @@ public class NetPlayerMovement : NetworkBehaviour
     [Rpc(SendTo.ClientsAndHost)]
     public void ToggleOverworldCameraRPC()
     {
-        playerCamera.enabled = !playerCamera.enabled;
+        Debug.Log("CLIENT: Camera toggled");
+        // check we own this object
+        if (IsOwner)
+            playerCamera.enabled = !playerCamera.enabled;
     }
 
     public void OnCharStateTransition(PlayerState newState, ulong playerId)

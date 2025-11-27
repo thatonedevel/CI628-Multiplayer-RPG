@@ -21,7 +21,8 @@ public class EnemyOverworldBehaviour : NetworkBehaviour
             return;
 
         // make sure we only run this on the server side
-        HitPlayerCharRPC();
+        if (collision.gameObject.CompareTag("Player"))
+            HitPlayerCharRPC();
     }
 
     [Rpc(SendTo.Server)]

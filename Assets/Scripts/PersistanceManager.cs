@@ -26,7 +26,5 @@ public class PersistanceManager : NetworkBehaviour
         
         // we're good to move to the test scene
         NetworkManager.SceneManager.LoadScene("TestDungeon_Room0", LoadSceneMode.Single);
-        // load battle scene in additive mode (we'll switch active scenes when changing between battle / overworld)
-        NetworkManager.SceneManager.LoadScene("BattleScene", LoadSceneMode.Additive);
     }
 }

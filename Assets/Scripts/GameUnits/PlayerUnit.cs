@@ -20,6 +20,13 @@ public class PlayerUnit : ABaseUnit
         
     }
 
+    public new void OnNetworkSpawn()
+    {
+        // add self to host party manager
+        Debug.Log("CLIENT: Joined Party");
+        PartyManager.Singleton.AddPartyMemberRPC(NetworkObjectId);
+    }
+
     // Update is called once per frame
     public override void TakeDamage(int damageAmount)
     {
@@ -71,8 +78,10 @@ public class PlayerUnit : ABaseUnit
         switch (newState)
         {
             case PlayerState.MOVING:
+                GetComponent<NetPlayerMovement>().enabled = true;
                 break;
             case PlayerState.BATTLE:
+                GetComponent<NetPlayerMovement>().enabled = false;
                 break;
             case PlayerState.SPECTATOR:
                 break;

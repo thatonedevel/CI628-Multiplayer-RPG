@@ -29,19 +29,23 @@ public class BattleManager : NetworkBehaviour
             if (IsServer || IsHost)
             {
                 Singleton = this;
+                BattleStarted();
             }
         }
     }
 
-    [Rpc(SendTo.Server)]
-    public void BattleStartedRPC()
+    //[Rpc(SendTo.Server)]
+    public void BattleStarted()
     {
+        Debug.Log("SERVER: Starting battle");
         // add all party members to battle units, then enemies
         battleUnits.Clear();
         
         for (int i = 0; i < PartyManager.Singleton.GetAlivePartyMemberCount(); i++)
         {
             battleUnits.Add(PartyManager.Singleton.GetPartyMember(i));
+            // set position of object
+            PartyManager.Singleton.GetPartyMember(i).transform.position = playerSpawnPositions[i].position;
         }
 
         // add enemies. start with detected enemy and then add others
@@ -62,6 +66,8 @@ public class BattleManager : NetworkBehaviour
             // add unit component to battle units list
             battleUnits.Add(zombieObj.GetComponent<ABaseUnit>());
         }
+
+        Debug.Log("Battle Started");
     }
 
     // Update is called once per frame

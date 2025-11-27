@@ -2,6 +2,7 @@ using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 public class GameController : NetworkBehaviour
 {
@@ -18,16 +19,24 @@ public class GameController : NetworkBehaviour
     private string overworldSceneName = "";
     private List<Transform> playerOverworldLocations = new();
 
-    void Start()
+    private void Start()
     {
-        if (IsServer)
+        // register to the network start events
+        NetworkManager.OnServerStarted += OnNetworkStarted;
+    }
+
+    private void OnNetworkStarted()
+    {
+        if (IsServer || IsHost)
         {
             // create singleton
             if (Singleton == null)
             {
+                Debug.Log("SERVER: Started Game Manager");
                 Singleton = this;
 
                 // add scene transition detection event callback
+                NetworkManager.SceneManager.OnSceneEvent += SceneManager_OnSceneEvent;
             }
             else
             {
@@ -48,7 +57,7 @@ public class GameController : NetworkBehaviour
         if (!IsServer)
             return;
 
-        Debug.Log("Transitioning to battle state");
+        Debug.Log("SERVER: Transitioning to battle state");
 
         // grab all player objects
         GameObject[] playerObjs = GameObject.FindGameObjectsWithTag("Player");
@@ -81,16 +90,49 @@ public class GameController : NetworkBehaviour
         }
     }
 
-    private void OnGlobalSceneChange(Scene destScene, LoadSceneMode mode)
+    private void SceneManager_OnSceneEvent(SceneEvent eventData)
+    {
+        switch (eventData.SceneEventType)
+        {
+            case SceneEventType.ActiveSceneChanged:
+                OnGlobalSceneChange();
+                break;
+        }
+    }
+
+    private void OnGlobalSceneChange()
     {
         if (!IsServer)
             return;
 
-        if (destScene.name == "Battle")
+        Debug.Log("SERVER: Synchronised scene transition detected");
+        if (NetworkManager.SceneManager.GetSynchronizedScenes()[0].name == "BattleScene")
         {
-            Debug.Log("Entered Battle Scene");
-            // call the battle manager start function
-            BattleManager.Singleton.BattleStartedRPC();
+            Debug.Log("SERVER: Entered Battle Scene");
+        }
+        else
+        {
+            // overworld
+            // call camera enable on each player
+            // move all players to original position
+            for (int i = 0; i < PartyManager.Singleton.GetAlivePartyMemberCount(); i++)
+            {
+                if (overworldSceneName != "")
+                {
+                    var memberTrans = PartyManager.Singleton.GetPartyMember(i).GetComponent<Transform>();
+                    memberTrans.position = playerOverworldLocations[i].position;
+                    memberTrans.rotation = playerOverworldLocations[i].rotation;
+                }
+
+                // enable the camera on the client side
+                // do this regardless of players being alive / dead
+                GameObject[] playerObjs = GameObject.FindGameObjectsWithTag("Player");
+
+                for (int pIndex = 0; pIndex < playerObjs.Length; pIndex++) 
+                {   
+                    playerObjs[pIndex].GetComponent<NetPlayerMovement>().ToggleOverworldCameraRPC();
+                }
+            }
         }
     }
 }

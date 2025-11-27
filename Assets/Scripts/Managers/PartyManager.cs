@@ -46,6 +46,8 @@ public class PartyManager : NetworkBehaviour
                 break;
             }
         }
+
+        Debug.Log("SERVER: Added player ID: " + id + " to party");
     }
 
     public int GetAlivePartyMemberCount()
