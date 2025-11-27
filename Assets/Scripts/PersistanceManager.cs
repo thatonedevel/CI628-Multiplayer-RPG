@@ -2,17 +2,17 @@ using NUnit.Framework;
 using UnityEngine;
 using System.Collections.Generic;
 using Unity.Netcode;
+using UnityEngine.SceneManagement;
 
-public class NewMonoBehaviourScript : NetworkBehaviour
+public class PersistanceManager : NetworkBehaviour
 {
     // network manager reference
-    [SerializeField] private NetworkManager netManager;
     [SerializeField] private List<GameObject> persistentObjects = new List<GameObject>();
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Start()
     {
-        netManager.OnClientStarted += OnClientStart;
+        NetworkManager.OnClientStarted += OnClientStart;
     }
 
     void OnClientStart()
@@ -25,6 +25,8 @@ public class NewMonoBehaviourScript : NetworkBehaviour
         }
         
         // we're good to move to the test scene
-        netManager.SceneManager.LoadScene("TestDungeon_Room0", UnityEngine.SceneManagement.LoadSceneMode.Single);
+        NetworkManager.SceneManager.LoadScene("TestDungeon_Room0", LoadSceneMode.Single);
+        // load battle scene in additive mode (we'll switch active scenes when changing between battle / overworld)
+        NetworkManager.SceneManager.LoadScene("BattleScene", LoadSceneMode.Additive);
     }
 }
