@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class DamageNumberScript : MonoBehaviour
+public class DamageNumbers : MonoBehaviour
 {
     [SerializeField] private Sprite[] digits;
 
@@ -25,9 +25,9 @@ public class DamageNumberScript : MonoBehaviour
         
     }
 
-    public void DisplayDamage(uint amount)
+    public void DisplayDamage(int amount)
     {
-        string amtAsString = amount.ToString();
+        string amtAsString = System.Math.Abs(amount).ToString();
         int tensDigit = 0;
         int unitsDigit = 0;
 
