@@ -9,6 +9,7 @@ public class PlayerUnit : ABaseUnit
     public static event Action<ulong> PlayerDeathEvent;
     public static event Action<PlayerState, ulong> PlayerStateChangedEvent;
 
+    [Header("Player Attributes")]
     private PlayerState currentPlayerState = PlayerState.IDLE;
     [SerializeField] private string playerName = "Player";
 
@@ -82,6 +83,7 @@ public class PlayerUnit : ABaseUnit
                 break;
             case PlayerState.BATTLE:
                 GetComponent<NetPlayerMovement>().enabled = false;
+
                 break;
             case PlayerState.SPECTATOR:
                 break;
@@ -97,9 +99,21 @@ public class PlayerUnit : ABaseUnit
         // raise player state changed event
         PlayerStateChangedEvent?.Invoke(newState, GetComponent<NetworkObject>().NetworkObjectId);
     }
+
+
+    [Rpc(SendTo.ClientsAndHost)]
+    public void SetDisplayToOverworldRPC()
+    {
+        // enable player cam
+        GetComponent<Camera>().enabled = true;
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    public void SetDisplayToBattleRPC()
+    {
+        GetComponent<Camera>().enabled = false;
+    }
 }
-
-
 // player states
 
 public enum PlayerState
