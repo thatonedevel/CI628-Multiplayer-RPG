@@ -29,6 +29,14 @@ public class BattleUIController : NetworkBehaviour
 
     Func<VisualElement> makeItem = () => new Label();
 
+    Func<VisualElement> makeButton = () =>
+    {
+        Button listButton = new Button();
+        
+
+        return listButton;
+    };
+
     void Start()
     {
         // grab the UI document
@@ -41,7 +49,7 @@ public class BattleUIController : NetworkBehaviour
         itemsButton = uiDocument.rootVisualElement.Query<Button>("ItemButton");
         fleeButton = uiDocument.rootVisualElement.Query<Button>("FleeButton");
 
-        enemySelectionListView = uiDocument.rootVisualElement.Query<ListView>("EnemySelectionListView");
+        enemySelectionListView = uiDocument.rootVisualElement.Query<ListView>("SelectionListView");
         mainSelectionPanel = uiDocument.rootVisualElement.Query<VisualElement>("OptionsPanel");
 
         // event subscription
@@ -50,8 +58,18 @@ public class BattleUIController : NetworkBehaviour
         itemsButton.clicked += OnItemsPressed;
         fleeButton.clicked += OnFleePressed;
 
+
+        if (enemySelectionListView is null)
+            Debug.Log("lv is null");
+
         // add the make item function to list view
         enemySelectionListView.makeItem = makeItem;
+
+        // if we are the server, subscribe to these events
+        if (IsServer)
+        {
+            BattleManager.OnTurnCompleted += TurnEndedHandler;
+        }
     }
 
     // Update is called once per frame
@@ -127,6 +145,77 @@ public class BattleUIController : NetworkBehaviour
 
             basicEnemyData.Add(localEnemy.GetComponent<BasicEnemy>());
         }
+    }
+
+    [Rpc(SendTo.Server)]
+    private void TargetEnemyRPC(int enemyIndex)
+    {
+        BattleManager.Singleton.EnemyAttacked(enemyIndex);
+    }
+
+    // client side rpc to enable ui control
+    [Rpc(SendTo.ClientsAndHost)]
+    private void EnableBattleUIRPC(ulong currentPlayerUnit, bool isPlayerTurn = true)
+    {
+        if (isPlayerTurn)
+        {
+            int indexToCheck = -1;
+            // get the player unit that is owned by this machine
+            GameObject[] playerUnits = GameObject.FindGameObjectsWithTag("Player");
+
+            for (int i = 0; i < playerUnits.Length; i++)
+            {
+                if (playerUnits[i].GetComponent<NetworkObject>().NetworkObjectId == currentPlayerUnit)
+                {
+                    indexToCheck = i;
+                    break;
+                }
+            }
+
+            if (indexToCheck == -1)
+                return;
+
+            // we have the player, check if this machine owns it
+            if (playerUnits[indexToCheck].GetComponent<NetworkObject>().IsOwner)
+            {
+                // we do, enable ui on this machine
+                EnableBattleUI();
+            }
+            else
+            {
+                // different player turn
+                DisableBattleUI();
+            }
+        }
+        else
+        {
+            DisableBattleUI();
+        }
+    }
+
+    // event handlers
+    private void TurnEndedHandler(int unitIndex, ulong netID, bool isPlayerUnit)
+    {
+        if (IsServer)
+            EnableBattleUIRPC(netID, isPlayerUnit);
+    }
+
+    private void EnableBattleUI()
+    {
+        // enable buttons
+        fightButton.enabledSelf = true;
+        fleeButton.enabledSelf = true;
+        itemsButton.enabledSelf = true;
+        skillsButton.enabledSelf = true;
+    }
+
+    private void DisableBattleUI()
+    {
+        // disable buttons
+        fightButton.enabledSelf = false;
+        fleeButton.enabledSelf = false;
+        itemsButton.enabledSelf = false;
+        skillsButton.enabledSelf = false;
     }
 }
 
