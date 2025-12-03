@@ -8,7 +8,11 @@ public class BattleManager : NetworkBehaviour
     // have an available singleton on the server
     public static BattleManager Singleton;
 
-    private List<ABaseUnit> battleUnits = new List<ABaseUnit>();
+    // battle events
+    public static event System.Action<int, ulong, bool> OnTurnCompleted;
+
+    private List<ABaseUnit> battleUnits = new();
+    private List<BasicEnemy> enemyUnits = new();
 
     [Header("Positioning")]
     [SerializeField] private List<Transform> enemySpawnPositions = new List<Transform>();
@@ -16,6 +20,9 @@ public class BattleManager : NetworkBehaviour
 
     [Header("Enemy Spawning")]
     [SerializeField] private List<SpawnableEnemy> spawnableEnemies = new List<SpawnableEnemy>();
+
+    // internal info
+    private int turnIndex = 0;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -67,7 +74,7 @@ public class BattleManager : NetworkBehaviour
             battleUnits.Add(zombieObj.GetComponent<ABaseUnit>());
         }
 
-        Debug.Log("Battle Started");
+        Debug.Log("SERVER: Battle Started");
     }
 
     // Update is called once per frame
@@ -103,6 +110,44 @@ public class BattleManager : NetworkBehaviour
         }
 
         return enemyUnitList.ToArray();
+    }
+
+    public void EnemyAttacked(int enemyIndex)
+    {
+        // enemy damage logic here
+        if (!IsServer)
+            return;
+
+        // grab attack from player
+        if (battleUnits[turnIndex] is not PlayerUnit)
+            return;
+        int atk = battleUnits[turnIndex].GetComponent<PlayerUnit>().attack.Value;
+
+        enemyUnits[enemyIndex].TakeDamage(atk);
+
+        // end turn
+    }
+
+    private void EndTurn()
+    {
+        // get id of object that had its turn
+        ulong id = battleUnits[turnIndex].NetworkObjectId;
+
+        bool isPlayerUnit = battleUnits[turnIndex] is PlayerUnit;
+
+        // fire turn ended event
+        OnTurnCompleted?.Invoke(turnIndex, id, isPlayerUnit);
+
+        // increment turn index
+        turnIndex = turnIndex >= battleUnits.Count - 1 ? 0 : turnIndex + 1;
+
+        // check if the next turn is a player or an enemy
+
+    }
+
+    private void HandleEnemyTurn()
+    {
+
     }
 }
 
