@@ -572,6 +572,7 @@ MonoBehaviour:
     m_InternalValue: 1
   attack:
     m_InternalValue: 1
+  damageNumbers: {fileID: 2146448716226781120}
   playerName: Player
 --- !u!1001 &505927861571953991
 PrefabInstance:
@@ -643,3 +644,14 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1489531468768211233, guid: ff5afdd3373150f4ba978a48b616ae1b, type: 3}
   m_PrefabInstance: {fileID: 505927861571953991}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2146448716226781120 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1931161373336828551, guid: ff5afdd3373150f4ba978a48b616ae1b, type: 3}
+  m_PrefabInstance: {fileID: 505927861571953991}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07880779779545849a2fa83ff7fc13e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

@@ -303,6 +303,7 @@ MonoBehaviour:
     m_InternalValue: 0
   attack:
     m_InternalValue: 1
+  damageNumbers: {fileID: 7508866193352776307}
   enemyBaseName: Zombie
   experienceDrop: 4
   goldDrop: 1
@@ -447,3 +448,14 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1489531468768211233, guid: ff5afdd3373150f4ba978a48b616ae1b, type: 3}
   m_PrefabInstance: {fileID: 8284379268659093748}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &7508866193352776307 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1931161373336828551, guid: ff5afdd3373150f4ba978a48b616ae1b, type: 3}
+  m_PrefabInstance: {fileID: 8284379268659093748}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07880779779545849a2fa83ff7fc13e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
