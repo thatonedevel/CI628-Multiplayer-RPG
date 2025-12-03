@@ -123,15 +123,6 @@ public class GameController : NetworkBehaviour
                     memberTrans.position = playerOverworldLocations[i].position;
                     memberTrans.rotation = playerOverworldLocations[i].rotation;
                 }
-
-                // enable the camera on the client side
-                // do this regardless of players being alive / dead
-                GameObject[] playerObjs = GameObject.FindGameObjectsWithTag("Player");
-
-                for (int pIndex = 0; pIndex < playerObjs.Length; pIndex++) 
-                {   
-                    playerObjs[pIndex].GetComponent<NetPlayerMovement>().ToggleOverworldCameraRPC();
-                }
             }
         }
     }
