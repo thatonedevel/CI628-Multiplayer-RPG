@@ -1,1 +1,2 @@
 *.unity filter=lfs merge=lfs diff=lfs
+*.png filter=lfs merge=lfs diff=lfs
