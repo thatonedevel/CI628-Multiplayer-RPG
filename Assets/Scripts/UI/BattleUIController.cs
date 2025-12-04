@@ -68,7 +68,7 @@ public class BattleUIController : NetworkBehaviour
         // if we are the server, subscribe to these events
         if (IsServer)
         {
-            BattleManager.OnTurnCompleted += TurnEndedHandler;
+            BattleManager.OnCompletedTurnEndProcessing += TurnEndedHandler;
         }
     }
 
