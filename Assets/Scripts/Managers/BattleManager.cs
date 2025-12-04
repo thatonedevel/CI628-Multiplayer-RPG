@@ -9,7 +9,8 @@ public class BattleManager : NetworkBehaviour
     public static BattleManager Singleton;
 
     // battle events
-    public static event System.Action<int, ulong, bool> OnTurnCompleted;
+    public static event System.Action<int, ulong, bool> OnCompletedTurnEndProcessing;
+    public static event System.Action OnTurnStarted;
 
     private List<ABaseUnit> battleUnits = new();
     private List<BasicEnemy> enemyUnits = new();
@@ -124,30 +125,37 @@ public class BattleManager : NetworkBehaviour
         int atk = battleUnits[turnIndex].GetComponent<PlayerUnit>().attack.Value;
 
         enemyUnits[enemyIndex].TakeDamage(atk);
-
-        // end turn
     }
 
-    private void EndTurn()
+    private void EndTurn(ulong id)
     {
-        // get id of object that had its turn
-        ulong id = battleUnits[turnIndex].NetworkObjectId;
+        // ran via event invocation
 
-        bool isPlayerUnit = battleUnits[turnIndex] is PlayerUnit;
+        Debug.Log("SERVER: Ending turn");
+
+        // calculate next turn index (i.e. do we need to loop back round?)
+        int nextTurnIndex = turnIndex >= battleUnits.Count - 1 ? 0 : turnIndex + 1;
+
+        bool isPlayerUnit = battleUnits[nextTurnIndex] is PlayerUnit;
 
         // fire turn ended event
-        OnTurnCompleted?.Invoke(turnIndex, id, isPlayerUnit);
+        OnCompletedTurnEndProcessing?.Invoke(turnIndex, id, isPlayerUnit);
 
-        // increment turn index
-        turnIndex = turnIndex >= battleUnits.Count - 1 ? 0 : turnIndex + 1;
+        // update turn index
+        turnIndex = nextTurnIndex;
 
         // check if the next turn is a player or an enemy
-
+        if (!isPlayerUnit)
+        {
+            // handle the enemy turn
+            HandleEnemyTurn();
+        }
     }
 
     private void HandleEnemyTurn()
     {
-
+        // grab current enemy
+        BasicEnemy currentEnemy = battleUnits[turnIndex] as BasicEnemy;
     }
 }
 
