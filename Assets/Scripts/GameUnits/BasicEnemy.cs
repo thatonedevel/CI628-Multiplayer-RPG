@@ -29,7 +29,23 @@ public class BasicEnemy : ABaseUnit
 
     public override void TakeDamage(int damageAmount)
     {
-        throw new System.NotImplementedException();
+        if (!IsServer)
+            return;
+
+        base.TakeDamage(damageAmount);
+
+        // check current hp
+        if (currentHP.Value <= 0)
+        {
+            currentHP.Value = 0;
+            // fire unit death event
+            EnemyKilledEvent?.Invoke(NetworkObjectId);
+        }
+        else
+        {
+            // enemy was damaged but not killed
+            EnemyDamagedEvent?.Invoke(NetworkObjectId);
+        }
     }
 
     public virtual void AttackPlayer()
