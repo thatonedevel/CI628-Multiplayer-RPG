@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using Unity.VisualScripting;
+using System.Runtime.CompilerServices;
 
 public class BattleManager : NetworkBehaviour
 {
@@ -12,8 +13,17 @@ public class BattleManager : NetworkBehaviour
     public static event System.Action<int, ulong, bool> OnCompletedTurnEndProcessing;
     public static event System.Action OnTurnStarted;
 
+
+    // lists for referencing each unit type
+    // have separate lists for enemy and player units for specific unit management stuff
+    // battleunits list is primarily used for turn tracking
     private List<ABaseUnit> battleUnits = new();
+
+    private List<PlayerUnit> playerUnits = new();
+    private List<PlayerUnit> deceasedPlayerUnits = new();
+
     private List<BasicEnemy> enemyUnits = new();
+    
 
     [Header("Positioning")]
     [SerializeField] private List<Transform> enemySpawnPositions = new List<Transform>();
@@ -23,7 +33,8 @@ public class BattleManager : NetworkBehaviour
     [SerializeField] private List<SpawnableEnemy> spawnableEnemies = new List<SpawnableEnemy>();
 
     // internal info
-    private int turnIndex = 0;
+    private int turnIndex = 0; // tracking current turn
+    private int experiencePool = 0; // experience to be given to players when battle is won
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -37,6 +48,12 @@ public class BattleManager : NetworkBehaviour
             if (IsServer || IsHost)
             {
                 Singleton = this;
+
+                // subscribe to turn end events
+                ABaseUnit.TurnTakenEvent += OnTurnTaken;
+                BasicEnemy.EnemyKilledEvent += EnemyDeathListener;
+                PlayerUnit.OnPlayerKilled += PlayerDeathListener;
+
                 BattleStarted();
             }
         }
@@ -46,14 +63,20 @@ public class BattleManager : NetworkBehaviour
     public void BattleStarted()
     {
         Debug.Log("SERVER: Starting battle");
-        // add all party members to battle units, then enemies
-        battleUnits.Clear();
         
+        // reset each list for safety reasons
+        battleUnits.Clear();
+        playerUnits.Clear();
+        enemyUnits.Clear();
+        
+        // add all party members to battle units, then enemies
         for (int i = 0; i < PartyManager.Singleton.GetAlivePartyMemberCount(); i++)
         {
             battleUnits.Add(PartyManager.Singleton.GetPartyMember(i));
             // set position of object
             PartyManager.Singleton.GetPartyMember(i).transform.position = playerSpawnPositions[i].position;
+            // add all pary members to player list
+            playerUnits.Add(PartyManager.Singleton.GetPartyMember(i));
         }
 
         // add enemies. start with detected enemy and then add others
@@ -72,7 +95,9 @@ public class BattleManager : NetworkBehaviour
             zombieObj.GetComponent<NetworkObject>().Spawn(true); // destroy once scene is left
 
             // add unit component to battle units list
-            battleUnits.Add(zombieObj.GetComponent<ABaseUnit>());
+            battleUnits.Add(zombieObj.GetComponent<BasicEnemy>());
+            // add the unit to the enemies list
+            enemyUnits.Add(zombieObj.GetComponent<BasicEnemy>());
         }
 
         Debug.Log("SERVER: Battle Started");
@@ -88,7 +113,7 @@ public class BattleManager : NetworkBehaviour
     {
         if (IsServer || IsHost)
         {
-            
+            EndTurn(unitID);
         }
     }
 
@@ -129,6 +154,9 @@ public class BattleManager : NetworkBehaviour
 
     private void EndTurn(ulong id)
     {
+        if (!IsServer)
+            return;
+
         // ran via event invocation
 
         Debug.Log("SERVER: Ending turn");
@@ -154,16 +182,108 @@ public class BattleManager : NetworkBehaviour
 
     private void HandleEnemyTurn()
     {
+        if (!IsServer) 
+            return;
         // grab current enemy
         BasicEnemy currentEnemy = battleUnits[turnIndex] as BasicEnemy;
-    }
-}
 
-public enum BattleState
-{
-    INIT,
-    PLAYER_TURN,
-    ENEMY_TURN
+        // call its attack method
+        currentEnemy.AttackPlayer();
+    }
+
+    // enemy and player death event handlers
+    private void EnemyDeathListener(ulong enemyID)
+    {
+        if (!IsServer)
+            return;
+
+        // enemy death detected
+        // get the gameobject from the given id
+        BasicEnemy target = null;
+
+        for (int i = 0; i < battleUnits.Count; i++)
+        {
+            if (enemyUnits[i].NetworkBehaviourId == enemyID)
+            {
+                target = enemyUnits[i];
+                break;
+            }
+        }
+
+        if (target is not null)
+        {
+            // remove the target from each array, and then despawn it
+            enemyUnits.Remove(target);
+            battleUnits.Remove(target);
+
+            // add xp to pool
+            experiencePool += target.experienceDrop;
+
+            // despawn enemy
+            target.NetworkObject.Despawn();
+        }
+
+        // once done, check enemy array size
+        if (enemyUnits.Count == 0)
+        {
+            // players one the battle :D
+            EndBattle();
+        }
+    }
+
+    private void PlayerDeathListener(ulong playerID)
+    {
+        if (!IsServer) 
+            return;
+
+        // similar logic to the enemy death, but with some differences
+        Debug.Log("SERVER: Player: " + " was killed");
+
+        // get the obj of dead player
+        PlayerUnit deceasedPlayer = null;
+
+        for (int i = 0; i < battleUnits.Count; i++)
+        {
+            if (playerUnits[i].NetworkObjectId == playerID)
+            {
+                deceasedPlayer = playerUnits[i];
+                break;
+            }
+        }
+
+        if (deceasedPlayer is not null)
+        {
+            // update player state to spectating
+            deceasedPlayer.UpdatePlayerStateRPC(PlayerState.SPECTATOR);
+            // move player to the "knock-out" list so they can potentially be revived
+            // also remove them from the other lists (as those track alive units)
+            battleUnits.Remove(deceasedPlayer);
+            playerUnits.Remove(deceasedPlayer);
+
+            deceasedPlayerUnits.Add(deceasedPlayer);
+
+            // check if all player units are dead
+            if (playerUnits.Count == 0)
+            {
+                EndBattle(false);
+            }
+        }
+    }
+
+    private void EndBattle(bool didPartyWin=true)
+    {
+        if (didPartyWin)
+        {
+            // TODO: on the one hand, gold
+            // for now, just return to the overworld
+            GameController.Singleton.TransitionToOverworld();
+        }
+        else
+        {
+            // TODO: on the other hand, horrible agonising failure /ref
+            // call gameover method on game controller
+        }
+    }
 }
 
 [System.Serializable]
