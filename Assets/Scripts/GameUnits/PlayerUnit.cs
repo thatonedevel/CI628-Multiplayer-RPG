@@ -94,6 +94,13 @@ public class PlayerUnit : ABaseUnit
     [Rpc(SendTo.Server)]
     public void UpdatePlayerStateRPC(PlayerState newState)
     {
+        // check if the player was spectating and now is not
+        if (currentPlayerState == PlayerState.SPECTATOR && newState != PlayerState.SPECTATOR)
+        {
+            // call spectate exit
+            EndSpectateClientRPC();
+        }
+
         switch (newState)
         {
             case PlayerState.MOVING:
@@ -104,6 +111,7 @@ public class PlayerUnit : ABaseUnit
 
                 break;
             case PlayerState.SPECTATOR:
+                BeginSpectateClientRPC();
                 break;
             case PlayerState.VIEWING_INVENTORY:
                 break;
@@ -147,6 +155,26 @@ public class PlayerUnit : ABaseUnit
     public void UseSkill()
     {
 
+    }
+
+    // specatator entry method
+    [Rpc(SendTo.ClientsAndHost)]
+    private void BeginSpectateClientRPC()
+    {
+        // disable the following: renderer, collision, movement and cam
+        GetComponent<Camera>().enabled = false;
+        GetComponent<CapsuleCollider>().enabled = false;
+        GetComponent<MeshRenderer>().enabled = false;
+        GetComponent<NetPlayerMovement>().enabled = false;
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    private void EndSpectateClientRPC()
+    {
+        GetComponent<Camera>().enabled = true;
+        GetComponent<CapsuleCollider>().enabled = true;
+        GetComponent<MeshRenderer>().enabled = true;
+        GetComponent<NetPlayerMovement>().enabled = true;
     }
 }
 // player states
