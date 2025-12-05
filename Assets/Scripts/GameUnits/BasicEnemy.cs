@@ -50,7 +50,7 @@ public class BasicEnemy : ABaseUnit
 
     public virtual void AttackPlayer()
     {
-        if (IsServer || IsHost)
+        if (IsServer)
         {
             // enemy attack logic
             // pick a player to attack
