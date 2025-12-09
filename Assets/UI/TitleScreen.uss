@@ -18,3 +18,15 @@
     padding-top: 30px;
     font-size: 50px;
 }
+
+.errorWin {
+    position: absolute;
+    align-content: center;
+    align-items: flex-start;
+}
+
+.errorMessage {
+    font-size: 50px;
+    -unity-text-align: upper-left;
+    align-self: flex-start;
+}

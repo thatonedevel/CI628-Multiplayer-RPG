@@ -10,5 +10,14 @@
                 <ui:Button text="Quit" name="QuitButon" class="titleButton" />
             </ui:GroupBox>
         </ui:GroupBox>
+        <ui:VisualElement name="ErrorWindow" class="errorWin" style="flex-grow: 1; width: 843px; flex-direction: column; display: flex; visibility: hidden; height: 398px; background-color: rgb(207, 207, 207); border-left-color: rgb(54, 54, 54); border-right-color: rgb(54, 54, 54); border-top-color: rgb(54, 54, 54); border-bottom-color: rgb(54, 54, 54); border-top-width: 15px; border-right-width: 15px; border-bottom-width: 15px; border-left-width: 15px; border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px;">
+            <ui:GroupBox name="ErHBox" style="height: 356px; width: 804px;">
+                <ui:GroupBox name="ErVBox" style="height: 218px; padding-left: 20px; padding-right: 10px; padding-top: 20px; align-items: flex-start; justify-content: space-evenly; align-content: flex-start; align-self: stretch; flex-direction: row;">
+                    <ui:VisualElement name="ErrorIco" style="flex-grow: 1; width: 120px; background-image: url(&quot;project://database/Assets/Sprites/warningico.png?fileID=2800000&amp;guid=df8f52dbd60f86e43965a4dcb2e91c14&amp;type=3#warningico&quot;); height: 190px; align-items: flex-start; align-self: stretch; flex-direction: row; justify-content: space-around;" />
+                    <ui:Label text="[Error]:" name="ErrorMessage" data-source="project://database/Assets/SOInstances/ErrorMessageData.asset?fileID=11400000&amp;guid=34a8f5599d8689d4885860b0f6b24ef9&amp;type=2#ErrorMessageData" data-source-path="errorMessage" class="errorMessage" style="height: 182px; width: 521px; padding-left: 15px; padding-top: 10px; margin-right: 15px; padding-right: 0; padding-bottom: 0;" />
+                </ui:GroupBox>
+                <ui:Button text="OK" name="ErrExitBtn" class="titleButton" style="height: 78px; width: 319px; flex-direction: column; align-self: center; margin-top: 20px;" />
+            </ui:GroupBox>
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
