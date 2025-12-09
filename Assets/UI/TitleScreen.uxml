@@ -1,0 +1,14 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/TitleScreen.uss?fileID=7433441132597879392&amp;guid=8b8fff8b6a2d3e74f8b95a63e2f85723&amp;type=3#TitleScreen" />
+    <ui:VisualElement name="Root" class="background" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/Textures/title_background.png?fileID=2800000&amp;guid=462e3019d6ca20f4ea3e68ed0229d73d&amp;type=3#title_background&quot;); align-items: center; justify-content: center;">
+        <ui:GroupBox name="WidgetGroup" style="height: 970px; align-self: center; justify-content: flex-start; align-items: center; width: 1614px;">
+            <ui:Label text="Dungeon Delver" name="TitleLabel" style="-unity-text-align: middle-center; height: 250px; width: 741px; justify-content: center; align-self: center; align-items: center; background-color: rgba(255, 255, 255, 0); color: rgb(255, 255, 255); font-size: 100px; -unity-font-definition: url(&quot;project://database/Assets/UI%20Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss?fileID=2230732570650464555&amp;guid=02b74ca03df30be458222b122c58c1fe&amp;type=3#NotInter-Regular&quot;);" />
+            <ui:GroupBox name="ButtonGroup" class="titleButtonRows" style="height: 711px; width: 707px;">
+                <ui:Button text="Join Game" name="JoinButton" class="titleButton" />
+                <ui:Button text="Host Game" name="HostButton" class="titleButton" />
+                <ui:Button text="Settings" name="SettingButon" class="titleButton" />
+                <ui:Button text="Quit" name="QuitButon" class="titleButton" />
+            </ui:GroupBox>
+        </ui:GroupBox>
+    </ui:VisualElement>
+</ui:UXML>
