@@ -19,12 +19,6 @@ public class DamageNumbers : MonoBehaviour
         tensSpriteRenderer.enabled = false;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public void DisplayDamage(int amount)
     {
         string amtAsString = System.Math.Abs(amount).ToString();
