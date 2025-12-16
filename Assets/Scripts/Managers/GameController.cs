@@ -52,6 +52,14 @@ public class GameController : NetworkBehaviour
     }
 
 
+    public void SendPartyToTheWorld()
+    {
+        // called once all party members are readied up
+        // load dungeon scene
+        // TODO: replace with save point scene
+
+    }
+
     public void TransitionToBattle()
     {
         if (!IsServer)

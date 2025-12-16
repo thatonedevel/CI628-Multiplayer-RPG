@@ -1,6 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UIElements;
+using UnityEngine.SceneManagement;
 
 public class TitleScreenController : MonoBehaviour
 {
@@ -64,7 +65,8 @@ public class TitleScreenController : MonoBehaviour
         {
             // run the manager spawn
             managerSpawner.TrySpawningManagers();
-            // load into the dungeon scene
+            // load into the lobby scene
+            NetworkManager.Singleton.SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
         }
         else
         {
