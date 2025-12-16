@@ -48,7 +48,7 @@ public class ManagerSpawner : NetworkBehaviour
                 // object does not exist, we can spawn the prefab
                 // instantiate the local object
                 Debug.Log("CLIENT: Spawning local instance of " + managerNetPrefabs[pfIndex].name);
-                GameObject clientObj = Instantiate(testReference);
+                GameObject clientObj = Instantiate(managerNetPrefabs[pfIndex]);
 
                 // spawn on the network
                 clientObj.GetComponent<NetworkObject>().Spawn();
