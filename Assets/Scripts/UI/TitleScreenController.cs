@@ -48,15 +48,7 @@ public class TitleScreenController : MonoBehaviour
         errorDialogueOkButton.clicked += OnErrorMessageOkClicked;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-
     // button functions
-
     private void OnHostGameClicked()
     {
         bool success = NetworkManager.Singleton.StartHost();
