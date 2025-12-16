@@ -5,7 +5,10 @@ using System;
 
 public class PartyManager : NetworkBehaviour
 {
-    private List<GameObject> playerGameObjects = new List<GameObject>();
+    // class for managing the rpg party & game session
+
+    private List<GameObject> playerGameObjects = new();
+    private List<ulong> partyMemberGUIDs = new();
     public static PartyManager Singleton;
 
     // events
@@ -21,6 +24,8 @@ public class PartyManager : NetworkBehaviour
         else
         {
             Singleton = this;
+            // subscribe to client connect / disconnect events
+            NetworkManager.OnClientConnectedCallback += ClientConnectListener;
         }
     }
 
@@ -64,6 +69,11 @@ public class PartyManager : NetworkBehaviour
         return count;
     }
 
+    public int GetTotalPlayerCount()
+    {
+        return playerGameObjects.Count;
+    }
+
     public PlayerUnit GetPartyMember(int index)
     {
         if (index < 0 || index >= playerGameObjects.Count)
@@ -85,5 +95,24 @@ public class PartyManager : NetworkBehaviour
         }
 
         return aliveIndices;
+    }
+
+    public void UpdateStateForAllPlayers(PlayerState newState)
+    {
+        if (!IsServer)
+        {
+            Debug.LogError("Method must be called from server");
+            return;
+        }
+
+        for (int i = 0; i < playerGameObjects.Count; i++)
+        {
+            playerGameObjects[i].GetComponent<PlayerUnit>().UpdatePlayerStateRPC(newState);
+        }
+    }
+
+    private void ClientConnectListener(ulong clientID)
+    {
+
     }
 }

@@ -22,12 +22,7 @@ public class GameController : NetworkBehaviour
     private void Start()
     {
         // register to the network start events
-        NetworkManager.OnServerStarted += OnNetworkStarted;
-    }
-
-    private void OnNetworkStarted()
-    {
-        if (IsServer || IsHost)
+        if (IsServer)
         {
             // create singleton
             if (Singleton == null)
@@ -45,6 +40,12 @@ public class GameController : NetworkBehaviour
         }
     }
 
+    private void OnNetworkStarted()
+    {
+        Debug.Log("SERVER: network started triggered");
+        
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -57,7 +58,9 @@ public class GameController : NetworkBehaviour
         // called once all party members are readied up
         // load dungeon scene
         // TODO: replace with save point scene
-
+        NetworkManager.SceneManager.LoadScene("TestDungeon_Room 0", LoadSceneMode.Single);
+        // update player state
+        PartyManager.Singleton.UpdateStateForAllPlayers(PlayerState.MOVING);
     }
 
     public void TransitionToBattle()
@@ -117,6 +120,12 @@ public class GameController : NetworkBehaviour
         if (NetworkManager.SceneManager.GetSynchronizedScenes()[0].name == "BattleScene")
         {
             Debug.Log("SERVER: Entered Battle Scene");
+        }
+        else if (NetworkManager.SceneManager.GetSynchronizedScenes()[0].name == "Lobby")
+        {
+            // lobby scene
+            // this is where we add our players to the party
+            Debug.Log("SERVER: Entered lobby");
         }
         else
         {

@@ -52,6 +52,7 @@ public class ReadyCheck : NetworkBehaviour
     [Rpc(SendTo.Server)]
     private void UpdateReadyStatusRpc(ulong playerID, bool newStatus)
     {
+        Debug.Log("SERVER: Updating ready status");
         if (newStatus)
         {
             // add
@@ -64,13 +65,22 @@ public class ReadyCheck : NetworkBehaviour
 
         // check if all players are ready
 
-        if (readyPlayers.Count == PartyManager.Singleton.GetAlivePartyMemberCount())
+        if (readyPlayers.Count == PartyManager.Singleton.GetTotalPlayerCount())
         {
+            Debug.Log("SERVER: All players are ready");
             // we can start the game
-            // disable button interaction
-            readyButton.enabledSelf = false;
-            // make portal label visible
-            portalOpenLabel.visible = true;
+            // update gui state
+            UpdateReadyGuiRPC();
+            GameController.Singleton.SendPartyToTheWorld();
         }
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    private void UpdateReadyGuiRPC()
+    {
+        // disable button interaction
+        readyButton.enabledSelf = false;
+        // make portal label visible
+        portalOpenLabel.visible = true;
     }
 }
