@@ -438,6 +438,7 @@ MonoBehaviour:
   moveSpeed: 15
   playerRigidbody: {fileID: -4613804554120556100}
   playerCamera: {fileID: 736483617876988964}
+  playerAudioListner: {fileID: 5258648946480402564}
 --- !u!136 &-8676104225140580242
 CapsuleCollider:
   m_ObjectHideFlags: 0
