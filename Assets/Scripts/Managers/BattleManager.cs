@@ -41,12 +41,13 @@ public class BattleManager : NetworkBehaviour
     {
         if (Singleton != null)
         {
-            GetComponent<NetworkObject>().Despawn();
+            NetworkObject.Despawn();
         }
         else
         {
-            if (IsServer || IsHost)
+            if (IsServer)
             {
+
                 Singleton = this;
 
                 // subscribe to turn end events
@@ -74,6 +75,7 @@ public class BattleManager : NetworkBehaviour
         {
             battleUnits.Add(PartyManager.Singleton.GetPartyMember(i));
             // set position of object
+            Debug.Log("SERVER: Setting positions");
             PartyManager.Singleton.GetPartyMember(i).transform.position = playerSpawnPositions[i].position;
             // add all pary members to player list
             playerUnits.Add(PartyManager.Singleton.GetPartyMember(i));
