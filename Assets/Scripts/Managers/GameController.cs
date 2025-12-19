@@ -58,7 +58,7 @@ public class GameController : NetworkBehaviour
         // called once all party members are readied up
         // load dungeon scene
         // TODO: replace with save point scene
-        NetworkManager.SceneManager.LoadScene("TestDungeon_Room 0", LoadSceneMode.Single);
+        NetworkManager.SceneManager.LoadScene("TestDungeon_Room0", LoadSceneMode.Single);
         // update player state
         PartyManager.Singleton.UpdateStateForAllPlayers(PlayerState.MOVING);
     }
