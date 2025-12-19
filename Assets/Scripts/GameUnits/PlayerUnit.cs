@@ -20,10 +20,18 @@ public class PlayerUnit : ABaseUnit
     InputAction confirmAction;
     InputAction backAction;
 
+    //public NetworkVariable<string> playerGUID;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         // input stuff
+
+        // set up guid
+        if (IsClient || IsHost)
+        {
+            //playerGUID.Value = ClientData.clientGUID;
+        }
     }
 
     private void Update()
@@ -185,5 +193,5 @@ public enum PlayerState
     BATTLE,
     SPECTATOR,
     VIEWING_INVENTORY, // covers all "viewing ui" cases
-    IDLE,
+    IDLE
 }

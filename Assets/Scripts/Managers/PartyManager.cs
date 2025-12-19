@@ -8,7 +8,7 @@ public class PartyManager : NetworkBehaviour
     // class for managing the rpg party & game session
 
     private List<GameObject> playerGameObjects = new();
-    private List<ulong> partyMemberGUIDs = new();
+    private List<string> partyMemberGUIDs = new();
     public static PartyManager Singleton;
 
     // events
@@ -23,9 +23,17 @@ public class PartyManager : NetworkBehaviour
         }
         else
         {
-            Singleton = this;
-            // subscribe to client connect / disconnect events
-            NetworkManager.OnClientConnectedCallback += ClientConnectListener;
+            if (IsServer)
+            {
+                Singleton = this;
+                // subscribe to client connect / disconnect events
+                NetworkManager.OnClientConnectedCallback += ClientConnectListener;
+                NetworkManager.OnConnectionEvent += ConnectionEventListener;
+
+                // add the host's character to the party
+                playerGameObjects.Add(GameObject.FindWithTag("Player"));
+                Debug.Log("SERVER: Added host character");
+            }
         }
     }
 
@@ -113,6 +121,36 @@ public class PartyManager : NetworkBehaviour
 
     private void ClientConnectListener(ulong clientID)
     {
+        if (!IsServer)
+        {
+            return;
+        }
 
+        Debug.Log("SERVER: Client with ID: " + clientID + " joined");
+        // get the character owned by the player
+        GameObject[] pcObjects = GameObject.FindGameObjectsWithTag("Player");
+
+        for (int i = 0; i < pcObjects.Length; i++) 
+        {
+            if (pcObjects[i].GetComponent<NetworkObject>().OwnerClientId == clientID)
+            {
+                // check if the party is full
+                if (playerGameObjects.Count < 4)
+                {
+                    // add player
+                    Debug.Log("SERVER: Added player to party");
+                    playerGameObjects.Add(pcObjects[i]);
+                    //partyMemberGUIDs.Add(pcObjects[i].GetComponent<PlayerUnit>().playerGUID.Value);
+                }
+            }
+        }
+    }
+
+    private void ConnectionEventListener(NetworkManager manRef, ConnectionEventData dat)
+    {
+        if (dat.EventType == ConnectionEvent.ClientConnected)
+        {
+            Debug.Log("SERVER: client detected");
+        }
     }
 }
