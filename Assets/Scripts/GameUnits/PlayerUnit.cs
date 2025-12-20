@@ -11,6 +11,8 @@ public class PlayerUnit : ABaseUnit
     public static event Action<ulong> OnPlayerKilled;
     public static event Action<PlayerState, ulong> PlayerStateChangedEvent;
 
+    public const string OBJECT_ID_KEY = "current_owned_pc_id";
+
     [Header("Player Attributes")]
     private PlayerState currentPlayerState = PlayerState.IDLE;
     [SerializeField] private string playerName = "Player";
@@ -183,6 +185,14 @@ public class PlayerUnit : ABaseUnit
         GetComponent<CapsuleCollider>().enabled = true;
         GetComponent<MeshRenderer>().enabled = true;
         GetComponent<NetPlayerMovement>().enabled = true;
+    }
+
+
+    // util methods
+    [Rpc(SendTo.ClientsAndHost)]
+    private void StorePCObjectIdRPC(ulong id)
+    {
+        PlayerPrefs.SetInt(OBJECT_ID_KEY, (int)id);
     }
 }
 // player states
