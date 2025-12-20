@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e9afe7cd3bafd842bef014fc9cad30d, type: 3}
   m_Name: EnemyListing
   m_EditorClassIdentifier: 
-  enemyNames: []
+  enemies: []
   enemyNetworkObjectIDs: 
+  enemyNames: []
