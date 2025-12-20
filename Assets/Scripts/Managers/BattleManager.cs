@@ -32,6 +32,9 @@ public class BattleManager : NetworkBehaviour
     [Header("Enemy Spawning")]
     [SerializeField] private List<SpawnableEnemy> spawnableEnemies = new List<SpawnableEnemy>();
 
+    [Header("Misc References")]
+    [SerializeField] private BattleUIController uiController;
+
     // internal info
     private int turnIndex = 0; // tracking current turn
     private int experiencePool = 0; // experience to be given to players when battle is won
@@ -79,6 +82,9 @@ public class BattleManager : NetworkBehaviour
             PartyManager.Singleton.GetPartyMember(i).transform.position = playerSpawnPositions[i].position;
             // add all pary members to player list
             playerUnits.Add(PartyManager.Singleton.GetPartyMember(i));
+
+            // disable the individual cameras
+            playerUnits[i].GetComponent<NetPlayerMovement>().DisableOverworldCameraRPC();
         }
 
         // add enemies. start with detected enemy and then add others
@@ -103,12 +109,9 @@ public class BattleManager : NetworkBehaviour
         }
 
         Debug.Log("SERVER: Battle Started");
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        // activate the gui
+        uiController.ActivationRPC(playerUnits[0].NetworkObjectId);
     }
 
     public void OnTurnTaken(ulong unitID)
