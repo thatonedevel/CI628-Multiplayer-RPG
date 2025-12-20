@@ -78,6 +78,8 @@ public class NetPlayerMovement : NetworkBehaviour
         return hitInfo.collider is not null;
     }
 
+    // camera methods
+
     [Rpc(SendTo.ClientsAndHost)]
     public void ToggleOverworldCameraRPC()
     {
@@ -88,6 +90,20 @@ public class NetPlayerMovement : NetworkBehaviour
             playerCamera.enabled = !playerCamera.enabled;
             playerAudioListner.enabled = !playerAudioListner.enabled;
         }  
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    public void DisableOverworldCameraRPC()
+    {
+        playerCamera.enabled = false;
+        playerAudioListner.enabled = false;
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    public void EnableOverworldCameraRPC()
+    {
+        playerCamera.enabled = false;
+        playerAudioListner.enabled = false;
     }
 
     public void OnCharStateTransition(PlayerState newState, ulong playerId)
