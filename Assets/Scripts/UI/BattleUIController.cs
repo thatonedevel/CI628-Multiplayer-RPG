@@ -25,6 +25,8 @@ public class BattleUIController : NetworkBehaviour
     [Header("Scriptable Objects for data sources")]
     [SerializeField] private EnemyDataSourceSO enemyData;
 
+    [SerializeField] private BattleManager battleManagerLocalRef;
+
     // lamdbda for making list items
 
     Func<VisualElement> makeItem = () => new Label();
@@ -37,8 +39,10 @@ public class BattleUIController : NetworkBehaviour
         return listButton;
     };
 
-    void Start()
+    [Rpc(SendTo.ClientsAndHost)]
+    public void ActivationRPC(ulong startingPlayerID)
     {
+        Debug.Log("CLIENT: Setting up battle UI");
         // grab the UI document
         UIDocument uiDocument = GetComponent<UIDocument>();
 
@@ -65,10 +69,18 @@ public class BattleUIController : NetworkBehaviour
         // add the make item function to list view
         enemySelectionListView.makeItem = makeItem;
 
-        // if we are the server, subscribe to these events
-        if (IsServer)
+        // if we are the server/host, subscribe to these events
+        if (IsHost)
         {
             BattleManager.OnCompletedTurnEndProcessing += TurnEndedHandler;
+        }
+
+        // use this to check if we need to enable / disable the buttons
+        if ((ulong)PlayerPrefs.GetInt(PlayerUnit.OBJECT_ID_KEY) == startingPlayerID)
+        {
+            // we own the player, enable the ui
+            Debug.Log("CLIENT: Enabling UI interaction");
+            EnableBattleUI();
         }
     }
 
@@ -92,6 +104,7 @@ public class BattleUIController : NetworkBehaviour
 
     public void OnFightPressed()
     {
+        Debug.Log("CLIENT: Fight Pressed");
         // clear out previous enemy data
         enemyData.ClearEnemies();
         // get a list of all enemies, add them to the selection listview
@@ -103,6 +116,9 @@ public class BattleUIController : NetworkBehaviour
 
             enemyData.AddEnemyToList(dat);
         }
+
+        // refresh
+        enemySelectionListView.RefreshItems();
 
         // make display view visible
         mainSelectionPanel.style.visibility = Visibility.Visible;
@@ -155,7 +171,7 @@ public class BattleUIController : NetworkBehaviour
 
     // client side rpc to enable ui control
     [Rpc(SendTo.ClientsAndHost)]
-    private void EnableBattleUIRPC(ulong currentPlayerUnit, bool isPlayerTurn = true)
+    public void EnableBattleUIRPC(ulong currentPlayerUnit, bool isPlayerTurn = true)
     {
         if (isPlayerTurn)
         {
@@ -178,11 +194,13 @@ public class BattleUIController : NetworkBehaviour
             // we have the player, check if this machine owns it
             if (playerUnits[indexToCheck].GetComponent<NetworkObject>().IsOwner)
             {
+                Debug.Log("CLIENT: Enabling battle UI");
                 // we do, enable ui on this machine
                 EnableBattleUI();
             }
             else
             {
+                Debug.Log("CLIENT: Disabling battle UI");
                 // different player turn
                 DisableBattleUI();
             }
