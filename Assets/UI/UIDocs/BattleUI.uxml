@@ -1,14 +1,14 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/UI/BattleUSS.uss?fileID=7433441132597879392&amp;guid=d5735aee37e463e47b2d123520d232cf&amp;type=3#BattleUSS" />
+    <Style src="project://database/Assets/UI/USS/BattleUSS.uss?fileID=7433441132597879392&amp;guid=d5735aee37e463e47b2d123520d232cf&amp;type=3#BattleUSS" />
     <ui:VisualElement name="UIRoot" style="flex-grow: 1; opacity: 1; visibility: visible; overflow: visible; position: absolute; top: 36px; left: 0; height: 1039px; width: 1920px;">
-        <ui:VisualElement name="OptionsPanel" class="panel" style="flex-grow: 1; left: 1253px; background-size: 100px 100%; width: 347px; height: 99px; max-height: 288px; max-width: 340px; position: absolute; top: 876px; transform-origin: right bottom; scale: 3 3;">
+        <ui:VisualElement name="OptionsPanel" class="panel" style="flex-grow: 1; left: 1253px; background-size: 100px 100%; width: 347px; height: 99px; max-height: 288px; max-width: 340px; position: absolute; top: 876px; transform-origin: right bottom; scale: 3 3; visibility: hidden;">
             <ui:ListView name="SelectionListView" data-source-type="BasicEnemy, Assembly-CSharp" data-source-path="enemyNames" enabled="true" data-source="project://database/Assets/SOInstances/EnemyListing.asset?fileID=11400000&amp;guid=88cd4f36b36b5934784ef587bee2027e&amp;type=2#EnemyListing" style="width: 316px; height: 98px;" />
         </ui:VisualElement>
         <ui:VisualElement name="MainButtonPanel" class="panel" style="flex-grow: 1; transform-origin: right bottom; min-width: 0; min-height: 0; max-width: 125px; max-height: 125px; right: 22px; bottom: 33px; left: 1773px; align-self: auto; position: absolute; height: 211px; justify-content: center; scale: 3 3;">
-            <ui:Button text="Fight" name="FightButton" class="sectionButton" />
-            <ui:Button text="Skills" name="SkillButton" class="sectionButton" />
-            <ui:Button text="Items" name="ItemButton" class="sectionButton" />
-            <ui:Button text="Flee" name="FleeButton" class="sectionButton" />
+            <ui:Button text="Fight" name="FightButton" enabled="false" class="sectionButton" />
+            <ui:Button text="Skills" name="SkillButton" enabled="false" class="sectionButton" />
+            <ui:Button text="Items" name="ItemButton" enabled="false" class="sectionButton" />
+            <ui:Button text="Flee" name="FleeButton" enabled="false" class="sectionButton" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
