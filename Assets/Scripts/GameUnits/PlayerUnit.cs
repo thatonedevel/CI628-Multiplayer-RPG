@@ -33,6 +33,8 @@ public class PlayerUnit : ABaseUnit
         if (IsClient || IsHost)
         {
             //playerGUID.Value = ClientData.clientGUID;
+            // set the id of the current owned player object
+            PlayerPrefs.SetInt(OBJECT_ID_KEY, (int)NetworkObjectId);
         }
     }
 

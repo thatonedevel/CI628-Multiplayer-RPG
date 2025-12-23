@@ -14,11 +14,17 @@ public class BattleUIController : NetworkBehaviour
     private Button itemsButton;
     private Button fleeButton;
 
-    private ListView enemySelectionListView;
+    // scrolling buttons
+    private Button scrollUpButton;
+    private Button scrollDownButton;
+
+    
 
     // panel listviews are displayed over
     // TODO: add slide-out anim
     private VisualElement mainSelectionPanel;
+    private VisualElement targetSelectionVBox;
+    private VisualElement scrollButtonPanel;
 
     private List<BasicEnemy> basicEnemyData = new List<BasicEnemy>();
 
@@ -53,8 +59,8 @@ public class BattleUIController : NetworkBehaviour
         itemsButton = uiDocument.rootVisualElement.Query<Button>("ItemButton");
         fleeButton = uiDocument.rootVisualElement.Query<Button>("FleeButton");
 
-        enemySelectionListView = uiDocument.rootVisualElement.Query<ListView>("SelectionListView");
-        mainSelectionPanel = uiDocument.rootVisualElement.Query<VisualElement>("OptionsPanel");
+        targetSelectionVBox = uiDocument.rootVisualElement.Query<VisualElement>("TargetSelectionVBox");
+        mainSelectionPanel = uiDocument.rootVisualElement.Query<VisualElement>("TargetSelectionPanel");
 
         // event subscription
         fightButton.clicked += OnFightPressed;
@@ -62,12 +68,6 @@ public class BattleUIController : NetworkBehaviour
         itemsButton.clicked += OnItemsPressed;
         fleeButton.clicked += OnFleePressed;
 
-
-        if (enemySelectionListView is null)
-            Debug.Log("lv is null");
-
-        // add the make item function to list view
-        enemySelectionListView.makeItem = makeItem;
 
         // if we are the server/host, subscribe to these events
         if (IsHost)
