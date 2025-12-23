@@ -75,11 +75,8 @@ public class BattleUIController : NetworkBehaviour
             BattleManager.OnCompletedTurnEndProcessing += TurnEndedHandler;
         }
 
-        // use this to check if we need to enable / disable the buttons
-        if ((ulong)PlayerPrefs.GetInt(PlayerUnit.OBJECT_ID_KEY) == startingPlayerID)
+        if (CheckWeOwnStartingPlayer(startingPlayerID))
         {
-            // we own the player, enable the ui
-            Debug.Log("CLIENT: Enabling UI interaction");
             EnableBattleUI();
         }
     }
@@ -123,6 +120,29 @@ public class BattleUIController : NetworkBehaviour
         // make display view visible
         mainSelectionPanel.style.visibility = Visibility.Visible;
         enemySelectionListView.style.visibility = Visibility.Visible;
+    }
+
+    private bool CheckWeOwnStartingPlayer(ulong startID)
+    {
+        // use this to check if we need to enable / disable the buttons
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+        int index = -1;
+
+        for (int i = 0; i < players.Length; i++)
+        {
+            if (players[i].GetComponent<NetworkObject>().NetworkObjectId == startID)
+            {
+                index = i;
+                break;
+            }
+        }
+
+        if (index == -1)
+            return false;
+
+        // check we own the player
+
+        return players[index].GetComponent<NetworkObject>().IsOwner;
     }
 
     public void OnSkillsPressed()
