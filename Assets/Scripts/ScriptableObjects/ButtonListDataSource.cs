@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using UnityEngine.Rendering;
 
 [CreateAssetMenu(fileName = "ButtonListDataSource", menuName = "Scriptable Objects/ButtonListDataSource")]
 public class ButtonListDataSource : ScriptableObject
@@ -21,6 +22,8 @@ public class ButtonListDataSource : ScriptableObject
 
     public void Awake()
     {
+        labelEndIndex = textDataList.Count == 0 ? -1 : textDataList.Count - 1;
+        labelStartIndex = textDataList.Count == 0 ? -1 : labelStartIndex;
         UpdateDisplayList();
     }
 
@@ -45,8 +48,6 @@ public class ButtonListDataSource : ScriptableObject
     public void UpdateDisplayList()
     {
         // grab the list, go through it and update labels
-        labelEndIndex = textDataList.Count == 0 ? -1 : textDataList.Count - 1;
-        labelStartIndex = textDataList.Count == 0 ? -1 : 0;
 
         int end = labelEndIndex < 3 ? textDataList.Count - 1 : 3;
 
@@ -68,5 +69,38 @@ public class ButtonListDataSource : ScriptableObject
                     break;
             }
         }
+    }
+
+
+    public void TryScrollUp()
+    {
+        if (labelStartIndex > 0)
+        {
+            labelStartIndex--;
+            labelEndIndex--;
+        }
+    }
+
+    public void TryScrollDown()
+    {
+        if (labelEndIndex < textDataList.Count - 1)
+        {
+            labelEndIndex++;
+            labelStartIndex++;
+        }
+    }
+
+    public void RefreshScroll()
+    {
+        // resets the scroll to the top of the list
+
+        labelStartIndex = 0;
+        labelEndIndex = textDataList.Count > 4? 3: textDataList.Count - 1;
+        UpdateDisplayList();
+    }
+
+    public void ClearStringList()
+    {
+        textDataList.Clear();
     }
 }

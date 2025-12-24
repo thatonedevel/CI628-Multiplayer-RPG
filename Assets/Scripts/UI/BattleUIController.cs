@@ -33,6 +33,8 @@ public class BattleUIController : NetworkBehaviour
 
     [SerializeField] private BattleManager battleManagerLocalRef;
 
+    [SerializeField] private ButtonListDataSource targetButtonsList;
+
     // lamdbda for making list items
 
     Func<VisualElement> makeItem = () => new Label();
@@ -107,19 +109,22 @@ public class BattleUIController : NetworkBehaviour
         // get a list of all enemies, add them to the selection listview
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
 
+        // clear targer button list
+        targetButtonsList.ClearStringList();
+
         foreach (var enemy in enemies)
         {
             BasicEnemy dat = enemy.GetComponent<BasicEnemy>();
 
-            enemyData.AddEnemyToList(dat);
+            targetButtonsList.AddItem(dat.enemyBaseName);
         }
 
         // refresh
-        enemySelectionListView.RefreshItems();
+        targetButtonsList.RefreshScroll();
 
-        // make display view visible
-        mainSelectionPanel.style.visibility = Visibility.Visible;
-        enemySelectionListView.style.visibility = Visibility.Visible;
+        // go through the buttons and check if they 
+
+        mainSelectionPanel.visible = true;
     }
 
     private bool CheckWeOwnStartingPlayer(ulong startID)
