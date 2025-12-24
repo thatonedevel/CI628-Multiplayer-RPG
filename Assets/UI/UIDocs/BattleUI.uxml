@@ -1,0 +1,39 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/USS/BattleUSS.uss?fileID=7433441132597879392&amp;guid=d5735aee37e463e47b2d123520d232cf&amp;type=3#BattleUSS" />
+    <ui:VisualElement name="UIRoot" style="flex-grow: 1; opacity: 1; visibility: visible; overflow: visible; position: absolute; top: 36px; left: -1px; height: 1039px; width: 1920px;">
+        <ui:VisualElement name="TargetPanel" class="panel" style="flex-grow: 1; left: 1253px; background-size: 100px 100%; width: 347px; height: 99px; max-height: 288px; max-width: 340px; position: absolute; top: 876px; transform-origin: right bottom; scale: 3 3; visibility: visible;">
+            <ui:VisualElement name="TargetSelectionVBox" style="flex-grow: 1; width: 334px; margin-top: 5px; align-items: stretch; justify-content: space-evenly; align-self: flex-end; visibility: visible;">
+                <ui:Button text="Button" name="Selection0" focusable="false" class="battleSelectorButton" style="height: 0;">
+                    <Bindings>
+                        <ui:DataBinding property="text" data-source-path="label0" data-source="project://database/Assets/SOInstances/TargetListingDataSource.asset?fileID=11400000&amp;guid=05bcc35768071d241ad33be0ef933998&amp;type=2#TargetListingDataSource" binding-mode="ToTarget" />
+                    </Bindings>
+                </ui:Button>
+                <ui:Button text="Button" name="Selection1" class="battleSelectorButton">
+                    <Bindings>
+                        <ui:DataBinding property="text" data-source-path="label1" data-source="project://database/Assets/SOInstances/TargetListingDataSource.asset?fileID=11400000&amp;guid=05bcc35768071d241ad33be0ef933998&amp;type=2#TargetListingDataSource" binding-mode="ToTarget" />
+                    </Bindings>
+                </ui:Button>
+                <ui:Button text="Button" name="Selection2" class="battleSelectorButton">
+                    <Bindings>
+                        <ui:DataBinding property="text" data-source-path="label2" data-source="project://database/Assets/SOInstances/TargetListingDataSource.asset?fileID=11400000&amp;guid=05bcc35768071d241ad33be0ef933998&amp;type=2#TargetListingDataSource" binding-mode="ToTarget" />
+                    </Bindings>
+                </ui:Button>
+                <ui:Button text="Button" name="Selection4" class="battleSelectorButton">
+                    <Bindings>
+                        <ui:DataBinding property="text" data-source-path="label3" data-source="project://database/Assets/SOInstances/TargetListingDataSource.asset?fileID=11400000&amp;guid=05bcc35768071d241ad33be0ef933998&amp;type=2#TargetListingDataSource" binding-mode="ToTarget" />
+                    </Bindings>
+                </ui:Button>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="MainButtonPanel" class="panel" style="flex-grow: 1; transform-origin: right bottom; min-width: 0; min-height: 0; max-width: 125px; max-height: 125px; right: 22px; bottom: 33px; left: 1773px; align-self: auto; position: absolute; height: 211px; justify-content: center; scale: 3 3;">
+            <ui:Button text="Fight" name="FightButton" enabled="false" class="sectionButton" />
+            <ui:Button text="Skills" name="SkillButton" enabled="false" class="sectionButton" />
+            <ui:Button text="Items" name="ItemButton" enabled="false" class="sectionButton" />
+            <ui:Button text="Flee" name="FleeButton" enabled="false" class="sectionButton" />
+        </ui:VisualElement>
+        <ui:VisualElement name="ScrollButtonHbox" style="flex-grow: 1; position: absolute; height: 36px; width: 92px; top: 933px; left: 1417px; flex-direction: row; background-color: rgb(124, 124, 124); border-top-left-radius: 6px; border-top-right-radius: 6px; border-bottom-right-radius: 6px; border-bottom-left-radius: 6px; visibility: hidden;">
+            <ui:Button text="^" name="ScrollUpButton" class="scrollButton" style="font-size: 24px;" />
+            <ui:Button text="V" name="ScrollDownButton" class="scrollButton" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,10 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="ReadyUpRoot" style="flex-grow: 1; align-items: center; justify-content: flex-end; margin-bottom: 115px;">
+        <ui:Label text="Opening portal..." name="PortalMessage" style="width: 746px; white-space: nowrap; -unity-text-align: upper-center; height: 50px; margin-top: 6px; justify-content: space-around; align-self: center; align-items: center; visibility: hidden;" />
+        <ui:Button name="ReadyButton" text="Ready" style="height: 102px; width: 753px; -unity-text-align: middle-center; font-size: 40px;">
+            <Bindings>
+                <ui:DataBinding property="text" data-source-path="messageData" data-source="project://database/Assets/SOInstances/StringDataSO.asset?fileID=11400000&amp;guid=b377235db368f194199297288d2990d3&amp;type=2#StringDataSO" binding-mode="ToTarget" />
+            </Bindings>
+        </ui:Button>
+    </ui:VisualElement>
+</ui:UXML>

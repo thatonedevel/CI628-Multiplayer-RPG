@@ -10,6 +10,8 @@ public class BasicEnemy : ABaseUnit
     public static event Action<ulong> EnemyDamagedEvent;
     public static event Action<ulong> EnemyKilledEvent;
 
+    public string enemyBaseName = string.Empty;
+
     // enemy only stats
     public int experienceDrop = 0;
     public int goldDrop = 0;
@@ -27,7 +29,23 @@ public class BasicEnemy : ABaseUnit
 
     public override void TakeDamage(int damageAmount)
     {
-        throw new System.NotImplementedException();
+        if (!IsServer)
+            return;
+
+        base.TakeDamage(damageAmount);
+
+        // check current hp
+        if (currentHP.Value <= 0)
+        {
+            currentHP.Value = 0;
+            // fire unit death event
+            EnemyKilledEvent?.Invoke(NetworkObjectId);
+        }
+        else
+        {
+            // enemy was damaged but not killed
+            EnemyDamagedEvent?.Invoke(NetworkObjectId);
+        }
     }
 
     public virtual void AttackPlayer()
@@ -37,6 +55,11 @@ public class BasicEnemy : ABaseUnit
             // enemy attack logic
             // pick a player to attack
             int index = UnityEngine.Random.Range(0, PartyManager.Singleton.GetAlivePartyMemberCount());
+
+            int trueTarget = PartyManager.Singleton.GetAlivePlayerIndices()[index];
+
+            // damage the player
+            PartyManager.Singleton.GetPartyMember(trueTarget).TakeDamage(attack.Value);
         }
     }
 }
