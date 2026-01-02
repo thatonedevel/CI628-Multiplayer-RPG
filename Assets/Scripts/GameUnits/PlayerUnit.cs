@@ -15,7 +15,7 @@ public class PlayerUnit : ABaseUnit
 
     [Header("Player Attributes")]
     private PlayerState currentPlayerState = PlayerState.IDLE;
-    [SerializeField] private string playerName = "Player";
+    [SerializeField] public string playerName = "Player";
 
     private bool isBotPlayer = false;
 
