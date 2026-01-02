@@ -26,6 +26,9 @@ public class BattleUIController : NetworkBehaviour
     private VisualElement targetSelectionVBox;
     private VisualElement scrollButtonPanel;
 
+    // target buttons
+    private List<Button> targetButtons = new();
+
     private List<BasicEnemy> basicEnemyData = new List<BasicEnemy>();
 
     [Header("Scriptable Objects for data sources")]
@@ -33,7 +36,10 @@ public class BattleUIController : NetworkBehaviour
 
     [SerializeField] private BattleManager battleManagerLocalRef;
 
-    [SerializeField] private ButtonListDataSource targetButtonsList;
+    [SerializeField] private BattleTargetDataSource targetButtonsList;
+
+    [Header("Misc.")]
+    [SerializeField] private TargetType currentTargetType = TargetType.NULL;
 
     // lamdbda for making list items
 
@@ -60,6 +66,16 @@ public class BattleUIController : NetworkBehaviour
         skillsButton = uiDocument.rootVisualElement.Query<Button>("SkillButton");
         itemsButton = uiDocument.rootVisualElement.Query<Button>("ItemButton");
         fleeButton = uiDocument.rootVisualElement.Query<Button>("FleeButton");
+
+        // target button references
+        UQueryBuilder<Button> buttons = uiDocument.rootVisualElement.Query<Button>(className: "targetButton");
+
+        buttons.ForEach(new List<bool>(), (Button current) =>
+        {
+            // add button to array
+            targetButtons.Add(current);
+            return true;
+        }); // get buttons added to list
 
         targetSelectionVBox = uiDocument.rootVisualElement.Query<VisualElement>("TargetSelectionVBox");
         mainSelectionPanel = uiDocument.rootVisualElement.Query<VisualElement>("TargetSelectionPanel");
@@ -103,6 +119,7 @@ public class BattleUIController : NetworkBehaviour
 
     public void OnFightPressed()
     {
+        currentTargetType = TargetType.ENEMY;
         Debug.Log("CLIENT: Fight Pressed");
         // clear out previous enemy data
         enemyData.ClearEnemies();
@@ -110,21 +127,16 @@ public class BattleUIController : NetworkBehaviour
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
 
         // clear targer button list
-        targetButtonsList.ClearStringList();
+        targetButtonsList.ClearTargets();
 
         foreach (var enemy in enemies)
         {
-            BasicEnemy dat = enemy.GetComponent<BasicEnemy>();
-
-            targetButtonsList.AddItem(dat.enemyBaseName);
+            targetButtonsList.TryAddTarget(enemy);
         }
 
-        // refresh
-        targetButtonsList.RefreshScroll();
-
-        // go through the buttons and check if they 
-
         mainSelectionPanel.visible = true;
+        // go through the buttons and check if they need to be shown
+        //for (int i = 0; i <)
     }
 
     private bool CheckWeOwnStartingPlayer(ulong startID)
@@ -189,9 +201,9 @@ public class BattleUIController : NetworkBehaviour
     }
 
     [Rpc(SendTo.Server)]
-    private void TargetEnemyRPC(int enemyIndex)
+    private void SendTargetRPC(int targetIndex, TargetType typeOfTarget)
     {
-        BattleManager.Singleton.EnemyAttacked(enemyIndex);
+        
     }
 
     // client side rpc to enable ui control
@@ -260,6 +272,9 @@ public class BattleUIController : NetworkBehaviour
         itemsButton.enabledSelf = false;
         skillsButton.enabledSelf = false;
     }
+
+    // method to give bindings & prevent late binding
+    //private Action
 }
 
 public enum MenuType
