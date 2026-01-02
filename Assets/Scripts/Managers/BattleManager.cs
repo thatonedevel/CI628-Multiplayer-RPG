@@ -32,8 +32,9 @@ public class BattleManager : NetworkBehaviour
     [Header("Enemy Spawning")]
     [SerializeField] private List<SpawnableEnemy> spawnableEnemies = new List<SpawnableEnemy>();
 
-    [Header("Misc References")]
+    [Header("Misc")]
     [SerializeField] private BattleUIController uiController;
+
 
     // internal info
     private int turnIndex = 0; // tracking current turn
@@ -297,4 +298,11 @@ public class SpawnableEnemy
     public GameObject enemyPrefab;
     public int spawnWeight;
     public string enemyName;
+}
+
+public enum TargetType
+{
+    PLAYER,
+    ENEMY,
+    NULL
 }
