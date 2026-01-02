@@ -39,7 +39,7 @@
     width: 90px;
 }
 
-.battleSelectorButton {
+.targetButton {
     -unity-text-align: upper-left;
     min-width: 0%;
     min-height: 20%;
