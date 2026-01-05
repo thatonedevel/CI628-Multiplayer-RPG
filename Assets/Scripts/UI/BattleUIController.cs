@@ -88,7 +88,7 @@ public class BattleUIController : NetworkBehaviour
         }
 
         targetSelectionVBox = uiDocument.rootVisualElement.Query<VisualElement>("TargetSelectionVBox");
-        mainSelectionPanel = uiDocument.rootVisualElement.Query<VisualElement>("TargetSelectionPanel");
+        mainSelectionPanel = uiDocument.rootVisualElement.Query<VisualElement>("TargetPanel");
 
         // event subscription
         fightButton.clicked += OnFightPressed;
@@ -130,21 +130,26 @@ public class BattleUIController : NetworkBehaviour
     public void OnFightPressed()
     {
         currentTargetType = TargetType.ENEMY;
+        SetTargetTypeOnServerRPC(currentTargetType);
         Debug.Log("CLIENT: Fight Pressed");
         // clear out previous enemy data
         enemyData.ClearEnemies();
         // get a list of all enemies, add them to the selection listview
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
 
+        Debug.Log("Found enemies: " + enemies.Length);
+
         // clear targer button list
         targetButtonsList.ClearTargets();
 
         foreach (var enemy in enemies)
         {
-            targetButtonsList.TryAddTarget(enemy);
+            var status = targetButtonsList.TryAddTarget(enemy);
+            Debug.Log("Could add enemy: " +  status);
         }
 
         mainSelectionPanel.visible = true;
+        targetSelectionVBox.visible = true;
         // go through the buttons and check if they need to be shown
         for (int i = 0; i < targetButtons.Count; i++)
         {
@@ -298,6 +303,8 @@ public class BattleUIController : NetworkBehaviour
 
     private void DisableBattleUI()
     {
+        Debug.Log("CLIENT: Disabling battle UI interaction");
+
         // disable buttons
         fightButton.enabledSelf = false;
         fleeButton.enabledSelf = false;
@@ -310,6 +317,7 @@ public class BattleUIController : NetworkBehaviour
             targetButtons[i].visible = false;
         }
         // hide targeting panel
+        mainSelectionPanel.visible = false;
         targetSelectionVBox.visible = false;
 
         // hide scroll buttons

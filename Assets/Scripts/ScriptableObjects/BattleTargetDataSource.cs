@@ -14,15 +14,9 @@ public class BattleTargetDataSource : ScriptableObject
     public string thirdTargetName;
     public string fourthTargetName;
 
-
-    private void Awake()
-    {
-        targetGameObjects.Capacity = 4; // cap limit at 4
-    }
-
     public bool TryAddTarget(GameObject targetObject)
     {
-        if (targetGameObjects.Count == targetGameObjects.Capacity)
+        if (targetGameObjects.Count == 4)
             return false;
 
         targetGameObjects.Add(targetObject);
@@ -64,7 +58,7 @@ public class BattleTargetDataSource : ScriptableObject
             }
             else
             {
-                targetName = targetGameObjects[i].name;
+                targetName = targetGameObjects[i].GetComponent<BasicEnemy>().enemyBaseName;
             }
 
             UpdateNumberedName(i, targetName);
@@ -75,7 +69,7 @@ public class BattleTargetDataSource : ScriptableObject
     {
         targetGameObjects.Clear();
         // update the bound data
-        for (int i = 0; i < targetGameObjects.Capacity; i++)
+        for (int i = 0; i < 4; i++)
         {
             UpdateNumberedName(i, "");
         }
