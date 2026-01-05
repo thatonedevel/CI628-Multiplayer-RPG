@@ -67,6 +67,10 @@ public class BattleUIController : NetworkBehaviour
         itemsButton = uiDocument.rootVisualElement.Query<Button>("ItemButton");
         fleeButton = uiDocument.rootVisualElement.Query<Button>("FleeButton");
 
+
+        // target selection panel ref
+
+
         // target button references
         UQueryBuilder<Button> buttons = uiDocument.rootVisualElement.Query<Button>(className: "targetButton");
 
@@ -76,6 +80,12 @@ public class BattleUIController : NetworkBehaviour
             targetButtons.Add(current);
             return true;
         }); // get buttons added to list
+
+        // loop through buttons and use the function factory
+        for (int i = 0; i < targetButtons.Count; i++) 
+        {
+            targetButtons[i].clicked += MakeTargetSelectionFunc(i);
+        }
 
         targetSelectionVBox = uiDocument.rootVisualElement.Query<VisualElement>("TargetSelectionVBox");
         mainSelectionPanel = uiDocument.rootVisualElement.Query<VisualElement>("TargetSelectionPanel");
@@ -136,7 +146,13 @@ public class BattleUIController : NetworkBehaviour
 
         mainSelectionPanel.visible = true;
         // go through the buttons and check if they need to be shown
-        //for (int i = 0; i <)
+        for (int i = 0; i < targetButtons.Count; i++)
+        {
+            if (i < targetButtonsList.GetTargetCount())
+                targetButtons[i].visible = true; // make it visible
+            else
+                targetButtons[i].visible = false;
+        }
     }
 
     private bool CheckWeOwnStartingPlayer(ulong startID)
@@ -201,9 +217,25 @@ public class BattleUIController : NetworkBehaviour
     }
 
     [Rpc(SendTo.Server)]
-    private void SendTargetRPC(int targetIndex, TargetType typeOfTarget)
+    private void SendTargetRPC(int targetIndex)
     {
-        
+        Debug.Log("SERVER: Recieved a target, index: " + targetIndex); 
+        switch (currentTargetType)
+        {
+            case TargetType.PLAYER:
+                break;
+            case TargetType.ENEMY:
+                // enemy is being attacked
+                Debug.Log("SERVER: Attacking Enemy (from UI)");
+                BattleManager.Singleton.EnemyAttacked(targetIndex);
+                break;
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    private void SetTargetTypeOnServerRPC(TargetType desiredType)
+    {
+        currentTargetType = desiredType;
     }
 
     // client side rpc to enable ui control
@@ -271,10 +303,28 @@ public class BattleUIController : NetworkBehaviour
         fleeButton.enabledSelf = false;
         itemsButton.enabledSelf = false;
         skillsButton.enabledSelf = false;
+
+        // go through target list, make it invis
+        for (int i = 0; i < targetButtons.Count; i++) 
+        {
+            targetButtons[i].visible = false;
+        }
+        // hide targeting panel
+        targetSelectionVBox.visible = false;
+
+        // hide scroll buttons
+        scrollButtonPanel.visible = false;
     }
 
     // method to give bindings & prevent late binding
-    //private Action
+    private Action MakeTargetSelectionFunc(int targetIndex)
+    {
+        return () => { 
+            // send target to server & disable the ui
+            SendTargetRPC(targetIndex);
+            DisableBattleUI();
+        };
+    }
 }
 
 public enum MenuType
