@@ -99,4 +99,9 @@ public class BattleTargetDataSource : ScriptableObject
                 break;
         }
     }
+
+    public int GetTargetCount()
+    {
+        return targetGameObjects.Count;
+    }
 }
