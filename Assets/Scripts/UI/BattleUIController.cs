@@ -24,7 +24,7 @@ public class BattleUIController : NetworkBehaviour
     // TODO: add slide-out anim
     private VisualElement mainSelectionPanel;
     private VisualElement targetSelectionVBox;
-    private VisualElement scrollButtonPanel;
+    //private VisualElement scrollButtonPanel;
 
     // target buttons
     private List<Button> targetButtons = new();
@@ -103,7 +103,7 @@ public class BattleUIController : NetworkBehaviour
             BattleManager.OnCompletedTurnEndProcessing += TurnEndedHandler;
         }
 
-        if (CheckWeOwnStartingPlayer(startingPlayerID))
+        if (CheckWeOwnSpecifiedPlayer(startingPlayerID))
         {
             EnableBattleUI();
         }
@@ -160,7 +160,7 @@ public class BattleUIController : NetworkBehaviour
         }
     }
 
-    private bool CheckWeOwnStartingPlayer(ulong startID)
+    private bool CheckWeOwnSpecifiedPlayer(ulong startID)
     {
         // use this to check if we need to enable / disable the buttons
         GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
@@ -301,6 +301,16 @@ public class BattleUIController : NetworkBehaviour
         skillsButton.enabledSelf = true;
     }
 
+    [Rpc(SendTo.ClientsAndHost)]
+    private void EnableBattleUIRPC(ulong playerID)
+    {
+        if (CheckWeOwnSpecifiedPlayer(playerID))
+        {
+            // we own current player, enable
+            EnableBattleUI();
+        }
+    }
+
     private void DisableBattleUI()
     {
         Debug.Log("CLIENT: Disabling battle UI interaction");
@@ -321,7 +331,7 @@ public class BattleUIController : NetworkBehaviour
         targetSelectionVBox.visible = false;
 
         // hide scroll buttons
-        scrollButtonPanel.visible = false;
+        //scrollButtonPanel.visible = false;
     }
 
     // method to give bindings & prevent late binding

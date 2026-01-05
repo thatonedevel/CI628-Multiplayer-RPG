@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
-using Unity.VisualScripting;
-using System.Runtime.CompilerServices;
+using System;
 
 public class BattleManager : NetworkBehaviour
 {
@@ -10,8 +9,9 @@ public class BattleManager : NetworkBehaviour
     public static BattleManager Singleton;
 
     // battle events
-    public static event System.Action<int, ulong, bool> OnCompletedTurnEndProcessing;
-    public static event System.Action OnTurnStarted;
+    public static event Action<int, ulong, bool> OnCompletedTurnEndProcessing;
+    public static event Action<ulong> OnTurnEnd;
+    public static event Action OnTurnStarted;
 
 
     // lists for referencing each unit type
@@ -58,6 +58,8 @@ public class BattleManager : NetworkBehaviour
                 ABaseUnit.TurnTakenEvent += OnTurnTaken;
                 BasicEnemy.EnemyKilledEvent += EnemyDeathListener;
                 PlayerUnit.OnPlayerKilled += PlayerDeathListener;
+                OnTurnEnd += EndTurn;
+
 
                 BattleStarted();
             }
@@ -93,7 +95,7 @@ public class BattleManager : NetworkBehaviour
 
         int maxEnemies = PartyManager.Singleton.GetAlivePartyMemberCount() == 4 ? 4 : 3;
 
-        int enemyCount = Random.Range(1, maxEnemies + 1);
+        int enemyCount = UnityEngine.Random.Range(1, maxEnemies + 1);
 
         for (int i = 0; i < enemyCount; i++)
         {
@@ -150,12 +152,18 @@ public class BattleManager : NetworkBehaviour
         if (!IsServer)
             return;
 
+        Debug.Log("SERVER: Enemy has been attacked");
+
         // grab attack from player
         if (battleUnits[turnIndex] is not PlayerUnit)
             return;
         int atk = battleUnits[turnIndex].GetComponent<PlayerUnit>().attack.Value;
 
+        Debug.Log("SERVER: Enemy was damaged");
         enemyUnits[enemyIndex].TakeDamage(atk);
+
+        // end the turn
+        OnTurnEnd?.Invoke(battleUnits[turnIndex].GetComponent<NetworkObject>().NetworkObjectId);
     }
 
     private void EndTurn(ulong id)
@@ -184,6 +192,12 @@ public class BattleManager : NetworkBehaviour
             // handle the enemy turn
             HandleEnemyTurn();
         }
+        else
+        {
+            // is player, enable that player's ui
+            var unit = battleUnits[nextTurnIndex] as PlayerUnit;
+            uiController.EnableBattleUIRPC(unit.NetworkObjectId);
+        }
     }
 
     private void HandleEnemyTurn()
@@ -195,6 +209,7 @@ public class BattleManager : NetworkBehaviour
 
         // call its attack method
         currentEnemy.AttackPlayer();
+        
     }
 
     // enemy and player death event handlers
