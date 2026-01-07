@@ -60,6 +60,9 @@ public class BasicEnemy : ABaseUnit
 
             // damage the player
             PartyManager.Singleton.GetPartyMember(trueTarget).TakeDamage(attack.Value);
+
+            // raise turn ended event
+            InvokeTurnEnd(NetworkObjectId);
         }
     }
 }

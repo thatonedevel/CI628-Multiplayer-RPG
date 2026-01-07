@@ -24,7 +24,10 @@ public class BattleUIController : NetworkBehaviour
     // TODO: add slide-out anim
     private VisualElement mainSelectionPanel;
     private VisualElement targetSelectionVBox;
-    private VisualElement scrollButtonPanel;
+    //private VisualElement scrollButtonPanel;
+
+    // target buttons
+    private List<Button> targetButtons = new();
 
     private List<BasicEnemy> basicEnemyData = new List<BasicEnemy>();
 
@@ -33,7 +36,10 @@ public class BattleUIController : NetworkBehaviour
 
     [SerializeField] private BattleManager battleManagerLocalRef;
 
-    [SerializeField] private ButtonListDataSource targetButtonsList;
+    [SerializeField] private BattleTargetDataSource targetButtonsList;
+
+    [Header("Misc.")]
+    [SerializeField] private TargetType currentTargetType = TargetType.NULL;
 
     // lamdbda for making list items
 
@@ -61,8 +67,28 @@ public class BattleUIController : NetworkBehaviour
         itemsButton = uiDocument.rootVisualElement.Query<Button>("ItemButton");
         fleeButton = uiDocument.rootVisualElement.Query<Button>("FleeButton");
 
+
+        // target selection panel ref
+
+
+        // target button references
+        UQueryBuilder<Button> buttons = uiDocument.rootVisualElement.Query<Button>(className: "targetButton");
+
+        buttons.ForEach(new List<bool>(), (Button current) =>
+        {
+            // add button to array
+            targetButtons.Add(current);
+            return true;
+        }); // get buttons added to list
+
+        // loop through buttons and use the function factory
+        for (int i = 0; i < targetButtons.Count; i++) 
+        {
+            targetButtons[i].clicked += MakeTargetSelectionFunc(i);
+        }
+
         targetSelectionVBox = uiDocument.rootVisualElement.Query<VisualElement>("TargetSelectionVBox");
-        mainSelectionPanel = uiDocument.rootVisualElement.Query<VisualElement>("TargetSelectionPanel");
+        mainSelectionPanel = uiDocument.rootVisualElement.Query<VisualElement>("TargetPanel");
 
         // event subscription
         fightButton.clicked += OnFightPressed;
@@ -77,7 +103,7 @@ public class BattleUIController : NetworkBehaviour
             BattleManager.OnCompletedTurnEndProcessing += TurnEndedHandler;
         }
 
-        if (CheckWeOwnStartingPlayer(startingPlayerID))
+        if (CheckWeOwnSpecifiedPlayer(startingPlayerID))
         {
             EnableBattleUI();
         }
@@ -103,31 +129,38 @@ public class BattleUIController : NetworkBehaviour
 
     public void OnFightPressed()
     {
+        currentTargetType = TargetType.ENEMY;
+        SetTargetTypeOnServerRPC(currentTargetType);
         Debug.Log("CLIENT: Fight Pressed");
         // clear out previous enemy data
         enemyData.ClearEnemies();
         // get a list of all enemies, add them to the selection listview
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
 
+        Debug.Log("Found enemies: " + enemies.Length);
+
         // clear targer button list
-        targetButtonsList.ClearStringList();
+        targetButtonsList.ClearTargets();
 
         foreach (var enemy in enemies)
         {
-            BasicEnemy dat = enemy.GetComponent<BasicEnemy>();
-
-            targetButtonsList.AddItem(dat.enemyBaseName);
+            var status = targetButtonsList.TryAddTarget(enemy);
+            Debug.Log("Could add enemy: " +  status);
         }
 
-        // refresh
-        targetButtonsList.RefreshScroll();
-
-        // go through the buttons and check if they 
-
         mainSelectionPanel.visible = true;
+        targetSelectionVBox.visible = true;
+        // go through the buttons and check if they need to be shown
+        for (int i = 0; i < targetButtons.Count; i++)
+        {
+            if (i < targetButtonsList.GetTargetCount())
+                targetButtons[i].visible = true; // make it visible
+            else
+                targetButtons[i].visible = false;
+        }
     }
 
-    private bool CheckWeOwnStartingPlayer(ulong startID)
+    private bool CheckWeOwnSpecifiedPlayer(ulong startID)
     {
         // use this to check if we need to enable / disable the buttons
         GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
@@ -189,9 +222,25 @@ public class BattleUIController : NetworkBehaviour
     }
 
     [Rpc(SendTo.Server)]
-    private void TargetEnemyRPC(int enemyIndex)
+    private void SendTargetRPC(int targetIndex)
     {
-        BattleManager.Singleton.EnemyAttacked(enemyIndex);
+        Debug.Log("SERVER: Recieved a target, index: " + targetIndex); 
+        switch (currentTargetType)
+        {
+            case TargetType.PLAYER:
+                break;
+            case TargetType.ENEMY:
+                // enemy is being attacked
+                Debug.Log("SERVER: Attacking Enemy (from UI)");
+                BattleManager.Singleton.EnemyAttacked(targetIndex);
+                break;
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    private void SetTargetTypeOnServerRPC(TargetType desiredType)
+    {
+        currentTargetType = desiredType;
     }
 
     // client side rpc to enable ui control
@@ -252,13 +301,47 @@ public class BattleUIController : NetworkBehaviour
         skillsButton.enabledSelf = true;
     }
 
+    [Rpc(SendTo.ClientsAndHost)]
+    private void EnableBattleUIRPC(ulong playerID)
+    {
+        if (CheckWeOwnSpecifiedPlayer(playerID))
+        {
+            // we own current player, enable
+            EnableBattleUI();
+        }
+    }
+
     private void DisableBattleUI()
     {
+        Debug.Log("CLIENT: Disabling battle UI interaction");
+
         // disable buttons
         fightButton.enabledSelf = false;
         fleeButton.enabledSelf = false;
         itemsButton.enabledSelf = false;
         skillsButton.enabledSelf = false;
+
+        // go through target list, make it invis
+        for (int i = 0; i < targetButtons.Count; i++) 
+        {
+            targetButtons[i].visible = false;
+        }
+        // hide targeting panel
+        mainSelectionPanel.visible = false;
+        targetSelectionVBox.visible = false;
+
+        // hide scroll buttons
+        //scrollButtonPanel.visible = false;
+    }
+
+    // method to give bindings & prevent late binding
+    private Action MakeTargetSelectionFunc(int targetIndex)
+    {
+        return () => { 
+            // send target to server & disable the ui
+            SendTargetRPC(targetIndex);
+            DisableBattleUI();
+        };
     }
 }
 

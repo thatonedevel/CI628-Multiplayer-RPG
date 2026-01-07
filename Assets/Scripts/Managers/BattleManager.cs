@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
-using Unity.VisualScripting;
-using System.Runtime.CompilerServices;
+using System;
 
 public class BattleManager : NetworkBehaviour
 {
@@ -10,8 +9,9 @@ public class BattleManager : NetworkBehaviour
     public static BattleManager Singleton;
 
     // battle events
-    public static event System.Action<int, ulong, bool> OnCompletedTurnEndProcessing;
-    public static event System.Action OnTurnStarted;
+    public static event Action<int, ulong, bool> OnCompletedTurnEndProcessing;
+    public static event Action<ulong> OnTurnEnd;
+    public static event Action OnTurnStarted;
 
 
     // lists for referencing each unit type
@@ -32,8 +32,9 @@ public class BattleManager : NetworkBehaviour
     [Header("Enemy Spawning")]
     [SerializeField] private List<SpawnableEnemy> spawnableEnemies = new List<SpawnableEnemy>();
 
-    [Header("Misc References")]
+    [Header("Misc")]
     [SerializeField] private BattleUIController uiController;
+
 
     // internal info
     private int turnIndex = 0; // tracking current turn
@@ -57,6 +58,7 @@ public class BattleManager : NetworkBehaviour
                 ABaseUnit.TurnTakenEvent += OnTurnTaken;
                 BasicEnemy.EnemyKilledEvent += EnemyDeathListener;
                 PlayerUnit.OnPlayerKilled += PlayerDeathListener;
+                OnTurnStarted += TurnStartHandler;
 
                 BattleStarted();
             }
@@ -92,7 +94,7 @@ public class BattleManager : NetworkBehaviour
 
         int maxEnemies = PartyManager.Singleton.GetAlivePartyMemberCount() == 4 ? 4 : 3;
 
-        int enemyCount = Random.Range(1, maxEnemies + 1);
+        int enemyCount = UnityEngine.Random.Range(1, maxEnemies + 1);
 
         for (int i = 0; i < enemyCount; i++)
         {
@@ -149,12 +151,19 @@ public class BattleManager : NetworkBehaviour
         if (!IsServer)
             return;
 
+        Debug.Log("SERVER: Enemy has been attacked");
+
         // grab attack from player
         if (battleUnits[turnIndex] is not PlayerUnit)
             return;
-        int atk = battleUnits[turnIndex].GetComponent<PlayerUnit>().attack.Value;
+        
+        var unit = battleUnits[turnIndex] as PlayerUnit;
 
-        enemyUnits[enemyIndex].TakeDamage(atk);
+        Debug.Log("SERVER: Enemy was damaged");
+        unit.AttackEnemy(enemyUnits[enemyIndex]);
+
+        // end the turn
+        OnTurnEnd?.Invoke(battleUnits[turnIndex].GetComponent<NetworkObject>().NetworkObjectId);
     }
 
     private void EndTurn(ulong id)
@@ -171,29 +180,26 @@ public class BattleManager : NetworkBehaviour
 
         bool isPlayerUnit = battleUnits[nextTurnIndex] is PlayerUnit;
 
-        // fire turn ended event
-        OnCompletedTurnEndProcessing?.Invoke(turnIndex, id, isPlayerUnit);
-
         // update turn index
         turnIndex = nextTurnIndex;
 
-        // check if the next turn is a player or an enemy
-        if (!isPlayerUnit)
-        {
-            // handle the enemy turn
-            HandleEnemyTurn();
-        }
+        // invoke next turn event
+        OnTurnStarted?.Invoke();
     }
 
     private void HandleEnemyTurn()
     {
         if (!IsServer) 
             return;
+
+        Debug.Log("SERVER: Handling enemy turn");
         // grab current enemy
         BasicEnemy currentEnemy = battleUnits[turnIndex] as BasicEnemy;
 
         // call its attack method
         currentEnemy.AttackPlayer();
+        // raise turn end
+        OnTurnEnd?.Invoke(currentEnemy.NetworkObjectId);
     }
 
     // enemy and player death event handlers
@@ -289,6 +295,25 @@ public class BattleManager : NetworkBehaviour
             // call gameover method on game controller
         }
     }
+
+    private void TurnStartHandler()
+    {
+        Debug.Log("SERVER: Starting next turn");
+        // check if the next turn is a player or an enemy
+        if (battleUnits[turnIndex] is not PlayerUnit)
+        {
+            Debug.Log("SERVER: Unit type is enemy");
+            // handle the enemy turn
+            HandleEnemyTurn();
+        }
+        else
+        {
+            Debug.Log("SERVER: Unit type is player");
+            // is player, enable that player's ui
+            var unit = battleUnits[turnIndex] as PlayerUnit;
+            uiController.EnableBattleUIRPC(unit.NetworkObjectId);
+        }
+    }
 }
 
 [System.Serializable]
@@ -297,4 +322,11 @@ public class SpawnableEnemy
     public GameObject enemyPrefab;
     public int spawnWeight;
     public string enemyName;
+}
+
+public enum TargetType
+{
+    PLAYER,
+    ENEMY,
+    NULL
 }
