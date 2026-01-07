@@ -18,6 +18,7 @@ public class NetPlayerMovement : NetworkBehaviour
     [Header("Component References")]
     [SerializeField] private Rigidbody playerRigidbody;
     [SerializeField] private Camera playerCamera;
+    [SerializeField] private AudioListener playerAudioListner;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -34,6 +35,7 @@ public class NetPlayerMovement : NetworkBehaviour
 
         // check if we're the machine that owns this player
         playerCamera.enabled = IsOwner;
+        playerAudioListner.enabled = IsOwner;
     }
 
     // Update is called once per frame
@@ -76,10 +78,32 @@ public class NetPlayerMovement : NetworkBehaviour
         return hitInfo.collider is not null;
     }
 
+    // camera methods
+
     [Rpc(SendTo.ClientsAndHost)]
     public void ToggleOverworldCameraRPC()
     {
-        playerCamera.enabled = !playerCamera.enabled;
+        Debug.Log("CLIENT: Camera toggled");
+        // check we own this object
+        if (IsOwner)
+        {
+            playerCamera.enabled = !playerCamera.enabled;
+            playerAudioListner.enabled = !playerAudioListner.enabled;
+        }  
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    public void DisableOverworldCameraRPC()
+    {
+        playerCamera.enabled = false;
+        playerAudioListner.enabled = false;
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    public void EnableOverworldCameraRPC()
+    {
+        playerCamera.enabled = false;
+        playerAudioListner.enabled = false;
     }
 
     public void OnCharStateTransition(PlayerState newState, ulong playerId)
