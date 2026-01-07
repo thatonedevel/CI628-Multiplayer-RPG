@@ -131,4 +131,9 @@ public class NetPlayerMovement : NetworkBehaviour
             }
         }
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+
+    }
 }
