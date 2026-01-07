@@ -35,4 +35,9 @@ public abstract class ABaseUnit : NetworkBehaviour
             damageNumbers.DisplayDamage(totalDmg);
         }
     }
+
+    protected void InvokeTurnEnd(ulong unitID)
+    {
+        TurnTakenEvent?.Invoke(unitID);
+    }
 }

@@ -153,10 +153,13 @@ public class PlayerUnit : ABaseUnit
     }
 
     // battle methods
-    [Rpc(SendTo.Server)]
-    public void AttackEnemyRPC(int enemyIndex)
+    public void AttackEnemy(BasicEnemy targetEnemy)
     {
-        // send message to battle manager
+        // called via battle manager, handles damage logic
+        if (!IsServer)
+            return;
+
+        targetEnemy.TakeDamage(attack.Value);
     }
 
     public void UseItem()

@@ -58,8 +58,7 @@ public class BattleManager : NetworkBehaviour
                 ABaseUnit.TurnTakenEvent += OnTurnTaken;
                 BasicEnemy.EnemyKilledEvent += EnemyDeathListener;
                 PlayerUnit.OnPlayerKilled += PlayerDeathListener;
-                OnTurnEnd += EndTurn;
-
+                OnTurnStarted += TurnStartHandler;
 
                 BattleStarted();
             }
@@ -157,10 +156,11 @@ public class BattleManager : NetworkBehaviour
         // grab attack from player
         if (battleUnits[turnIndex] is not PlayerUnit)
             return;
-        int atk = battleUnits[turnIndex].GetComponent<PlayerUnit>().attack.Value;
+        
+        var unit = battleUnits[turnIndex] as PlayerUnit;
 
         Debug.Log("SERVER: Enemy was damaged");
-        enemyUnits[enemyIndex].TakeDamage(atk);
+        unit.AttackEnemy(enemyUnits[enemyIndex]);
 
         // end the turn
         OnTurnEnd?.Invoke(battleUnits[turnIndex].GetComponent<NetworkObject>().NetworkObjectId);
@@ -180,36 +180,26 @@ public class BattleManager : NetworkBehaviour
 
         bool isPlayerUnit = battleUnits[nextTurnIndex] is PlayerUnit;
 
-        // fire turn ended event
-        OnCompletedTurnEndProcessing?.Invoke(turnIndex, id, isPlayerUnit);
-
         // update turn index
         turnIndex = nextTurnIndex;
 
-        // check if the next turn is a player or an enemy
-        if (!isPlayerUnit)
-        {
-            // handle the enemy turn
-            HandleEnemyTurn();
-        }
-        else
-        {
-            // is player, enable that player's ui
-            var unit = battleUnits[nextTurnIndex] as PlayerUnit;
-            uiController.EnableBattleUIRPC(unit.NetworkObjectId);
-        }
+        // invoke next turn event
+        OnTurnStarted?.Invoke();
     }
 
     private void HandleEnemyTurn()
     {
         if (!IsServer) 
             return;
+
+        Debug.Log("SERVER: Handling enemy turn");
         // grab current enemy
         BasicEnemy currentEnemy = battleUnits[turnIndex] as BasicEnemy;
 
         // call its attack method
         currentEnemy.AttackPlayer();
-        
+        // raise turn end
+        OnTurnEnd?.Invoke(currentEnemy.NetworkObjectId);
     }
 
     // enemy and player death event handlers
@@ -303,6 +293,25 @@ public class BattleManager : NetworkBehaviour
         {
             // TODO: on the other hand, horrible agonising failure /ref
             // call gameover method on game controller
+        }
+    }
+
+    private void TurnStartHandler()
+    {
+        Debug.Log("SERVER: Starting next turn");
+        // check if the next turn is a player or an enemy
+        if (battleUnits[turnIndex] is not PlayerUnit)
+        {
+            Debug.Log("SERVER: Unit type is enemy");
+            // handle the enemy turn
+            HandleEnemyTurn();
+        }
+        else
+        {
+            Debug.Log("SERVER: Unit type is player");
+            // is player, enable that player's ui
+            var unit = battleUnits[turnIndex] as PlayerUnit;
+            uiController.EnableBattleUIRPC(unit.NetworkObjectId);
         }
     }
 }
