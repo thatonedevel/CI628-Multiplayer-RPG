@@ -6,6 +6,18 @@ public class WorldItem : NetworkBehaviour
 {
     [SerializeField] private string Item_ID;
     [SerializeField] private GameObject itemShadow;
+    [SerializeField] private ItemSpriteLookupSO itemLookup;
+    [SerializeField] SpriteRenderer itemRenderer;
+
+    private void Start()
+    {
+        // do this on client side
+        if (IsClient || IsHost)
+        {
+            // use the item id to determine sprite
+            itemRenderer.sprite = itemLookup.GetSpriteByID(Item_ID);
+        }
+    }
 
     private void Update()
     {
@@ -22,18 +34,6 @@ public class WorldItem : NetworkBehaviour
             {
                 // update shadow y pos
                 itemShadow.transform.position = new Vector3(itemShadow.transform.position.x, hit.point.y, itemShadow.transform.position.z);
-            }
-        }
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (IsServer)
-        {
-            if (collision.gameObject.CompareTag("Player"))
-            {
-                // despawn world self on network
-                NetworkObject.Despawn(true);
             }
         }
     }
