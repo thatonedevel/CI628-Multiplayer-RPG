@@ -12,4 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6de65ebb5dc83c349ae21ffbe99ed64b, type: 3}
   m_Name: ItemSpriteLookupSO
   m_EditorClassIdentifier: 
-  spriteList: []
+  spriteList:
+  - itemID: healing_potion
+    itemSprite: {fileID: 21300000, guid: 53f09450a40456a4cb7c81aaba4faab5, type: 3}
+  - itemID: poison_potion
+    itemSprite: {fileID: 21300000, guid: 8bca69e9ba687b64f993f90298cab9ce, type: 3}
+  - itemID: first_aid_kit
+    itemSprite: {fileID: 21300000, guid: 7e4e9933ed6bfd9419607c645a9ef47e, type: 3}
