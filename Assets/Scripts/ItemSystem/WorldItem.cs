@@ -37,4 +37,9 @@ public class WorldItem : NetworkBehaviour
             }
         }
     }
+
+    public string GetItemID()
+    {
+        return Item_ID;
+    }
 }
