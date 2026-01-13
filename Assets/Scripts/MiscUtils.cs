@@ -1,6 +1,5 @@
 using System;
 using System.Globalization;
-using UnityEngine;
 
 public static class MiscUtils
 {
@@ -18,7 +17,7 @@ public static class MiscUtils
         return convertedString;
     }
 
-    private static void ConvertStringArray(string[] messages)
+    public static double[] ConvertStringArray(string[] messages)
     {
         // converts an array of string data to a double array
         // kept as doubles to prevent data loss
@@ -27,6 +26,9 @@ public static class MiscUtils
         // -1 is used as an array end delimeter
 
         int totalLength = 0;
+        int currentStartIndex = 0;
+        int delimIndex = 0;
+
         double[] finalArr;
 
         // calculate total length needed, add the delimeter character
@@ -41,8 +43,46 @@ public static class MiscUtils
 
         for (int i = 0; i < messages.Length; i++)
         {
-            StringToDoubleArr(messages[i]);
+            // grab the array & try to insert it into the finalArr
+            delimIndex = TryWriteItemsToArray(finalArr, StringToDoubleArr(messages[i]), currentStartIndex);
+            currentStartIndex = delimIndex + 1;
+
+            if (delimIndex == -1)
+                break;
+
+            // insert delimiter
+            finalArr[delimIndex] = -1;
         }
+
+        return finalArr;
+    }
+
+    public static void DecodeDelimitedCharArrAsString(double[] encodedChars)
+    {
+        string[] decodedString;
+
+        // calculate needed length
+        // loop through it & count occurences of -1
+
+        int sections = Array.FindAll<double>(encodedChars, (double i) => { return i == -1; }).Length;
+
+        decodedString = new string[sections];
+
+
+    }
+
+    public static string CharAsNumericsToString(double[] charSequence)
+    {
+        // converts the given char sequence (stored as doubles representing the UTF value) to a string
+        string convertedString = "";
+
+        // use a direct cast to convert the value (u/theFlyingCode, 24/12/2020 https://www.reddit.com/r/csharp/comments/kjadoo/comment/ggvmdjb/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button)
+        for (int charIndex = 0; charIndex < charSequence.Length; charIndex++) 
+        {
+            convertedString = convertedString + ((char)charSequence[charIndex]).ToString();
+        }
+
+        return convertedString;
     }
 
     public static bool TryInsertDataToArray<T>(T[] target, T newItem)
@@ -60,7 +100,7 @@ public static class MiscUtils
         return true;
     }
 
-    public static bool TryWriteItemsToArray<T>(T[] target, T[] newItems, int startIndex = 0)
+    public static int TryWriteItemsToArray<T>(T[] target, T[] newItems, int startIndex = 0)
     {
         /// tries to insert new items into the target array sequentially beginning at the start index
         /// will only insert data if the whole payload can be written
@@ -68,15 +108,15 @@ public static class MiscUtils
         
         // check given range is empty
         if (!CheckIndiceRangeIsEmpty(target, startIndex, startIndex + (newItems.Length - 1)))
-            return false;
+            return -1;
 
         // we can write the data
-        for (int i = 0; i < target.Length; i++) 
+        for (int i = 0; i < newItems.Length; i++) 
         {
             target[startIndex + i] = newItems[i];
         }
 
-        return true;
+        return startIndex + newItems.Length; // use this to get next available index
     }
 
     private static int FindFirstEmptyPositionInArray<T>(T[] target, int startIndex = 0)
@@ -101,25 +141,16 @@ public static class MiscUtils
 
     private static bool CheckIndiceRangeIsEmpty<T>(T[] target, int startIndex, int endIndex)
     {
-        bool success = true;
+        // make subarray
+        T[] subArr = new T[(endIndex - startIndex) + 1];
 
-        if (endIndex >= target.Length)
-            return false;
-
-        // check inclusively that indices in the specified range are all null
-        for (int i = startIndex; i <= endIndex; i++)
+        // populate it with the items
+        for (int i = 0; i < subArr.Length; i++) 
         {
-            if (target[i] is null)
-            {
-                continue;
-            }
-            else
-            {
-                success = false;
-                break;
-            }
+            subArr[i] = target[startIndex + i];
         }
 
-        return success;
+        // run a trueforall check to see if the target is null
+        return Array.TrueForAll(target, (T item) => { return item is null; });
     }
 }
