@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Netcode;
 using System.Collections.Generic;
+using System.Globalization;
 
 public class PlayerInventory : NetworkBehaviour
 {
@@ -33,14 +34,32 @@ public class PlayerInventory : NetworkBehaviour
                 {
                     itemList.Add(newItem);
                     itemCount.Anticipate(itemList.Count);
+                    UpdateItemNameListRPC(new double[2]);
                 }
             }
         }
     }
 
-    [Rpc(SendTo.ClientsAndHost)]
-    private void UpdateItemNameList()
+    private string[] GetItemNamesFromInv()
     {
+        string[] names = new string[itemList.Count];
 
+        for (int i = 0; i < itemList.Count; i++)
+        {
+            names[i] = itemList[i].ItemName;
+        }
+
+        return names;
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    private void UpdateItemNameListRPC(double[] nameData)
+    {
+        // can't send a list of names
+        itemNameList.Clear();
+        for (int i = 0; i < nameData.Length; i++)
+        {
+            //itemNameList.Add(names[i]);
+        }
     }
 }
