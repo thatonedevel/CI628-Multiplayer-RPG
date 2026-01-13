@@ -34,7 +34,7 @@ public class PlayerInventory : NetworkBehaviour
                 {
                     itemList.Add(newItem);
                     itemCount.Anticipate(itemList.Count);
-                    UpdateItemNameListRPC(new double[2]);
+                    UpdateItemNameListRPC(MiscUtils.ConvertStringArray(GetItemNamesFromInv()));
                 }
             }
         }
@@ -53,13 +53,16 @@ public class PlayerInventory : NetworkBehaviour
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    private void UpdateItemNameListRPC(double[] nameData)
+    private void UpdateItemNameListRPC(int[] nameData)
     {
         // can't send a list of names
         itemNameList.Clear();
-        for (int i = 0; i < nameData.Length; i++)
+        // convert the nameData back into the array of strings
+        string[] names = MiscUtils.DecodeDelimitedCharArrAsString(nameData);
+
+        for (int i = 0; i < names.Length; i++) 
         {
-            //itemNameList.Add(names[i]);
+            itemNameList.Add(names[i]);
         }
     }
 }
