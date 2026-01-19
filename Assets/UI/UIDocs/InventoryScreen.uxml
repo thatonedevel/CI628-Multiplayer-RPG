@@ -1,0 +1,21 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/USS/InventoryScreen.uss?fileID=7433441132597879392&amp;guid=36b7ef3a1803504489a5e98da41355c1&amp;type=3#InventoryScreen" />
+    <ui:VisualElement name="Root" style="flex-grow: 1; align-items: center; background-color: rgba(0, 0, 0, 0.28);">
+        <ui:VisualElement name="InventoryPanel" class="inventory-screen" style="flex-grow: 1; height: 840px; width: 652px; top: 10%; left: auto; align-items: center; right: auto; bottom: 131px;">
+            <ui:VisualElement name="TopRow" style="flex-grow: 1; align-items: center; align-self: center; flex-direction: row; width: 323px;">
+                <ui:Label text="Inventory" name="InventoryLabel" class="header" />
+                <ui:Button text="X" name="CloseInventoryButton" style="background-color: rgb(146, 47, 47); color: rgb(242, 242, 242);" />
+            </ui:VisualElement>
+            <ui:VisualElement name="ButtonsVBox" style="flex-grow: 1; width: 505px; margin-bottom: 40px; align-self: center; align-items: center;">
+                <ui:Button text="Button" name="Item_0" class="item-button" />
+                <ui:Button text="Button" name="Item_1" class="item-button" />
+                <ui:Button text="Button" name="Item_2" class="item-button" />
+                <ui:Button text="Button" name="Item_3" class="item-button" />
+                <ui:Button text="Button" name="Item_4" class="item-button" />
+                <ui:Button text="Button" name="Item_5" class="item-button" />
+                <ui:Button text="Button" name="Item_6" class="item-button" />
+                <ui:Button text="Button" name="Item_7" class="item-button" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
