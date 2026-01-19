@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using UnityEditor.Build;
 
 [CreateAssetMenu(fileName = "BattleTargetDataSource", menuName = "Scriptable Objects/BattleTargetDataSource")]
 public class BattleTargetDataSource : ScriptableObject
