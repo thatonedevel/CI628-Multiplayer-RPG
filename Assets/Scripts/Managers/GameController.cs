@@ -18,6 +18,7 @@ public class GameController : NetworkBehaviour
     // scene transition info
     private string overworldSceneName = "";
     private List<Transform> playerOverworldLocations = new();
+    private bool hasInitialisedGame = false;
 
     private void Start()
     {
@@ -55,11 +56,14 @@ public class GameController : NetworkBehaviour
 
     public void SendPartyToTheWorld()
     {
+        if (!IsServer)
+            return;
         // called once all party members are readied up
         // load dungeon scene
         // TODO: replace with save point scene
         NetworkManager.SceneManager.LoadScene("MainDungeon_Room0", LoadSceneMode.Single);
         // update player state
+
         PartyManager.Singleton.UpdateStateForAllPlayers(PlayerState.MOVING);
     }
 
@@ -132,13 +136,28 @@ public class GameController : NetworkBehaviour
             // overworld
             // call camera enable on each player
             // move all players to original position
-            for (int i = 0; i < PartyManager.Singleton.GetAlivePartyMemberCount(); i++)
+            if (hasInitialisedGame)
             {
-                if (overworldSceneName != "")
+                for (int i = 0; i < PartyManager.Singleton.GetAlivePartyMemberCount(); i++)
                 {
-                    var memberTrans = PartyManager.Singleton.GetPartyMember(i).GetComponent<Transform>();
-                    memberTrans.position = playerOverworldLocations[i].position;
-                    memberTrans.rotation = playerOverworldLocations[i].rotation;
+                    if (overworldSceneName != "")
+                    {
+                        var memberTrans = PartyManager.Singleton.GetPartyMember(i).GetComponent<Transform>();
+                        memberTrans.position = playerOverworldLocations[i].position;
+                        memberTrans.rotation = playerOverworldLocations[i].rotation;
+                    }
+                }
+            }
+            else
+            {
+                hasInitialisedGame = true;
+                var spawnAnchor = GameObject.FindWithTag("SpawnAnchor");
+                var i = 0;
+
+                foreach (var player in GameObject.FindGameObjectsWithTag("Player"))
+                {
+                    player.transform.position = spawnAnchor.transform.position + (Vector3.right * i);
+                    i++;
                 }
             }
         }

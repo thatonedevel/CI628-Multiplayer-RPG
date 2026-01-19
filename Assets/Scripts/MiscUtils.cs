@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public static class MiscUtils
 {
-    private static UTF8Encoding utf8Encoder = new();
+    private static UTF8Encoding utf8Encoder = new();    
 
     private static int[] StringToIntArr(string target)
     {

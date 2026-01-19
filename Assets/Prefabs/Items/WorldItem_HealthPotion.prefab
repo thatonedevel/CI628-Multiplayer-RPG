@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7284818248592518957}
   - component: {fileID: 5878381096535888818}
   m_Layer: 0
-  m_Name: WorldItem_Blank
+  m_Name: WorldItem_HealthPotion
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -69,7 +69,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3010722091
+  GlobalObjectIdHash: 1740752317
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -95,9 +95,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  Item_ID: 
+  Item_ID: HealthPotion
   itemShadow: {fileID: 8957541889890596249}
-  itemLookup: {fileID: 0}
+  itemLookup: {fileID: 11400000, guid: 4819823a349f2d54da7961bd8ddf61b8, type: 2}
   itemRenderer: {fileID: 395186401130133051}
 --- !u!1 &8800995814842182142
 GameObject:
