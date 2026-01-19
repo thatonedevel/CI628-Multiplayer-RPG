@@ -29,6 +29,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/BattleScene.unity
     guid: 43783865670a18a49988fbf43f20a46a
+  - enabled: 1
+    path: Assets/Scenes/LV_MainDungeon/MainDungeon_Room0.unity
+    guid: 572f9c624a237c544b1deec0e332055d
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

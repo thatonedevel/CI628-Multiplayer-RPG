@@ -10,7 +10,9 @@ public class NetPlayerMovement : NetworkBehaviour
     private InputAction interactAction;
     private NetworkVariable<bool> canMove = new NetworkVariable<bool>(true);
 
-    private bool isJumping = false;
+    public bool isJumping { get; private set; } = false;
+    public bool isMoving { get; private set; } = false;
+    public float velX { get; private set; } = 0;
 
     // movement speed
     [SerializeField] private float moveSpeed = 5f;
@@ -48,6 +50,9 @@ public class NetPlayerMovement : NetworkBehaviour
 
             Vector2 moveInput = moveAction.ReadValue<Vector2>();
             isJumping = jumpAction.triggered;
+
+            isMoving = moveInput.magnitude > 0 && canMove.Value;
+            velX = moveInput.x;
 
             if (canMove.Value)
                 MovePlayerCharacterRPC(moveInput, isJumping);
@@ -130,5 +135,10 @@ public class NetPlayerMovement : NetworkBehaviour
                     break;
             }
         }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+
     }
 }
